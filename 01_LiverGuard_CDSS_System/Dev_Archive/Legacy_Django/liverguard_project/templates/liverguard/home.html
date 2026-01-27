@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>간암 의사결정지원시스템</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        .main-wrapper {
+            display: flex;
+            flex: 1;
+        }
+
+        /* 왼쪽 사이드바 */
+        .sidebar {
+            width: 220px;
+            background: #2c3e50;
+            color: #ecf0f1;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 20px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 14px;
+            font-weight: 600;
+            color: #ecf0f1;
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            padding: 8px 0;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: #bdc3c7;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+        }
+
+        .menu-item:hover {
+            background: rgba(255,255,255,0.05);
+            color: #ecf0f1;
+            border-left-color: #3498db;
+        }
+
+        .menu-item.active {
+            background: rgba(52, 152, 219, 0.15);
+            color: #3498db;
+            border-left-color: #3498db;
+        }
+
+        .menu-icon {
+            width: 24px;
+            margin-right: 12px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .menu-group {
+            padding: 16px 16px 8px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #7f8c8d;
+            font-weight: 600;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: #2b5876;
+            color: white;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #1e3a52;
+        }
+
+        .header-left h1 {
+            font-size: 17px;
+            font-weight: 500;
+            letter-spacing: -0.3px;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .doctor-name {
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 0 8px;
+        }
+
+        .search-input {
+            padding: 7px 14px;
+            border: 1px solid #e1e4e8;
+            border-radius: 4px;
+            width: 220px;
+            font-size: 13px;
+            background: white;
+        }
+
+        .logout-btn {
+            padding: 7px 16px;
+            background-color: transparent;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 3px;
+            text-decoration: none;
+            font-size: 13px;
+            transition: background-color 0.2s;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .messages {
+            padding: 12px 24px;
+            margin: 0;
+        }
+
+        .message {
+            padding: 10px 14px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .message.warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+        }
+
+        .message.info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns:1.15fr 1.34fr 1.5fr;
+            grid-template-areas: "left center right";
+            grid-auto-rows: min-content;
+            gap: 16px;
+            align-items: start;
+            padding: 16px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .left-panel{ grid-area:left; }
+        .center-panel{ grid-area:center; min-width:0; } /* 표가 넘치지 않도록 */
+        .right-panel{ grid-area:right; }
+
+        /* 좌측: 시스템 정보 */
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .doctor-profile {
+            background: white;
+            border: 1px solid #e1e4e8;
+            border-radius: 4px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .doctor-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #4a90e2;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+        }
+
+        .doctor-name {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #24292e;
+        }
+
+        .doctor-info {
+            margin-top: 16px;
+            text-align: left;
+            border-top: 1px solid #e1e4e8;
+            padding-top: 12px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #586069;
+        }
+
+        .info-icon {
+            font-size: 14px;
+            width: 18px;
+        }
+
+        .add-patient-btn {
+            width: 100%;
+            padding: 10px;
+            background: #2b5876;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .add-patient-btn:hover {
+            background: #0256c7;
+        }
+
+        .patient-list-card {
+            background: white;
+            border: 1px solid #e1e4e8;
+            border-radius: 4px;
+            overflow: hidden;
+            height: calc(100vh - 240px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .patient-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f6f8fa;
+            border-bottom: 1px solid #e1e4e8;
+        }
+
+        .patient-list-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #24292e;
+        }
+
+        .patient-count {
+            background-color: #0366d6;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* 테이블 스타일 */
+        .patient-table {
+            width: 100%;
+            border-collapse: collapse;
+            flex: 1;
+        }
+
+        .patient-table thead {
+            background: #fafbfc;
+            font-size: 12px;
+            font-weight: 600;
+            color: #586069;
+            padding: 10px;
+            border-bottom: 1px solid #e1e4e8;
+        }
+
+        .patient-table th {
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #586069;
+            border-bottom: 1px solid #e1e4e8;
+        }
+
+        .patient-table td {
+            padding: 12px;
+            font-size: 13px;
+            border-bottom: 1px solid #e1e4e8;
+            color: #24292e;
+        }
+
+        .patient-table tbody tr {
+            cursor: pointer;
+            transition: background-color 0.1s;
+        }
+
+        .patient-table tbody tr:hover {
+            background-color: #f6f8fa;
+        }
+
+        .patient-id {
+            color: #0366d6;
+            font-weight: 500;
+        }
+
+        .patient-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .badge-male {
+            background-color: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #90caf9;
+        }
+
+        .badge-female {
+            background-color: #fce4ec;
+            color: #c2185b;
+            border: 1px solid #f8bbd0;
+        }
+
+        /* 중앙: 환자 목록 */
+        .center-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* 우측: 통계 정보 */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .stats-card {
+            background: white;
+            border: 1px solid #e1e4e8;
+            border-radius: 4px;
+            padding: 16px;
+        }
+
+        .stats-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #24292e;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e1e4e8;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            background-color: #f6f8fa;
+            border-radius: 3px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #586069;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0366d6;
+        }
+
+        .no-patients {
+            text-align: center;
+            padding: 40px 20px;
+            color: #586069;
+        }
+
+        .no-patients-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.4;
+        }
+
+       
+        /* 캘린더 */
+        .calendar-card {
+        background: #fff;
+        border: 1px solid #e1e4e8;
+        border-radius: 4px;
+        overflow: hidden;
+        }
+
+        /* 🔸 상단 (월, 버튼 영역) */
+        .cal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px;
+        background: #fff;
+        border-bottom: 1px solid #e1e4e8;
+        }
+
+        .cal-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #333;
+        }
+
+        .cal-nav {
+        display: flex;
+        gap: 6px;
+        }
+
+        .cal-btn {
+        border: none;
+        background: transparent;
+        font-size: 13px;
+        cursor: pointer;
+        color: #555;
+        padding: 2px 6px;
+        }
+
+        .cal-btn:hover {
+        color: #0366d6;
+        }
+
+        /* 🔸 달력 그리드 */
+        .cal-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+        padding: 10px;
+        }
+
+        /* 요일 (일, 월, 화...) */
+        .cal-dow {
+        font-size: 11px;
+        color: #999;
+        text-align: center;
+        }
+
+        /* 날짜 셀 (테두리 제거 / 중앙 정렬 / 깔끔하게) */
+        .cal-cell {
+        position: relative;
+        height: 38px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        }
+
+        .cal-day{
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        color: #333;
+        background: none;
+        border: none;
+        box-shadow: none;
+        }
+
+        .cal-day.muted {
+        color: #ccc;
+        }
+
+        .cal-day.today {
+        border-radius: 50%;
+        border: none;
+        color: #0366d6;
+        font-weight: 600;
+        }
+
+        /* 🔸 이벤트 점 (수술/회의/검사) */
+        .cal-dots {
+        display: flex;
+        gap: 4px;
+        margin-top: 4px;
+        }
+
+        .cal-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        }
+
+        /* 이벤트 색상별 점 */
+        .cal-dot.surgery { background: #e53935; }   /* 수술 - 빨강 */
+        .cal-dot.meeting { background: #1e88e5; }   /* 회의 - 파랑 */
+        .cal-dot.checkup { background: #fb8c00; }   /* 검사 - 주황 */
+
+        /* 🔸 범례 */
+        .cal-legend {
+        display: flex;
+        gap: 8px;
+        padding: 8px 12px;
+        border-top: 1px solid #e1e4e8;
+        background: #fafbfc;
+        }
+
+        .cal-leg {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        color: #586069;
+        }
+
+        .cal-pill {
+        width: 8px;
+        height: 8px;
+        border-radius: 2px;
+        background: #fb8c00;
+        }
+
+        /* 예측 부작용 + DDI 분석 카드 */
+        .adverse-card{
+        background:#fff; border:1px solid #e1e4e8; border-radius:6px; overflow:hidden;
+        }
+
+
+        .adverse-card{
+            background:#fff; border:1px solid #e1e4e8; border-radius:6px; overflow:hidden;
+        }
+        .right-panel .adverse-header{ display:none; }
+
+        .adverse-list{
+            list-style:none; margin:0; padding:12px;
+            display:grid; grid-template-columns:repeat(2, minmax(0,1fr));
+            gap:8px 12px;
+        }
+        .ad-item{
+            display:flex; justify-content:space-between; align-items:center;
+            padding:8px 10px; background:#fff;
+            border:1px solid #e9ecef; border-radius:6px;
+            font-size:13px;
+        }
+        .ad-score {
+            font-weight: 600; color: #333;
+        }
+        @media (max-width:1200px){
+            .adverse-list{ grid-template-columns:1fr; }
+        }
+
+
+
+
+
+    </style>
+</head>
+<body>
+    <div class="main-wrapper">
+        <!-- 왼쪽 사이드바 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                LiverGuard CDSS
+            </div>
+            <div class="sidebar-menu">
+                <a href="{% url 'liverguard:home' %}" class="menu-item active">
+                    <span class="menu-icon">📊</span>
+                    <span>대시보드</span>
+                </a>
+                <a href="{% url 'liverguard:patient_list' %}" class="menu-item">
+                    <span class="menu-icon">👥</span>
+                    <span>환자 관리</span>
+                </a>
+                <a href="{% url 'liverguard:record_list' %}" class="menu-item">
+                    <span class="menu-icon">📋</span>
+                    <span>진료 기록</span>
+                </a>
+                <a href="{% url 'liverguard:prescription_list' %}" class="menu-item">
+                    <span class="menu-icon">💊</span>
+                    <span>처방 관리</span>
+                </a>
+                <a href="{% url 'liverguard:drug_list' %}" class="menu-item">
+                    <span class="menu-icon">🔍</span>
+                    <span>약물 검색</span>
+                </a>
+                <a href="/ddi/" class="menu-item">
+                    <span class="menu-icon">⚠️</span>
+                    <span>DDI 분석</span>
+                </a>
+
+                <div class="menu-group">관리</div>
+                <a href="/admin/" class="menu-item">
+                    <span class="menu-icon">⚙️</span>
+                    <span>시스템 설정</span>
+                </a>
+                <a href="{% url 'liverguard:doctor_logout' %}" class="menu-item">
+                    <span class="menu-icon">🚪</span>
+                    <span>로그아웃</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- 메인 콘텐츠 영역 -->
+        <div class="content-wrapper">
+            <div class="header">
+                <div class="header-left">
+                    <h1>간암 의사결정지원시스템 (LiverGuard CDSS)</h1>
+                </div>
+                <div class="header-right">
+                    <span class="doctor-name">{{ doctor_name }} 님</span>
+                    <a href="/admin/" class="logout-btn">관리자</a>
+                    <a href="{% url 'liverguard:doctor_logout' %}" class="logout-btn">로그아웃</a>
+                </div>
+            </div>
+
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="container">
+        <!-- 좌측: 시스템 정보 -->
+        <div class="left-panel">
+            <div class="doctor-profile">
+                <div class="doctor-avatar">
+                    🏥
+                </div>
+                <div class="doctor-name">LiverGuard CDSS</div>
+
+                <div class="doctor-info">
+                    <div class="info-item">
+                        <span class="info-icon">📊</span>
+                        <span>통합 관리 시스템</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">🔒</span>
+                        <span>보안 인증</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">⚡</span>
+                        <span>실시간 업데이트</span>
+                    </div>
+                </div>
+            </div>
+
+            <button class="add-patient-btn" onclick="location.href='{% url 'liverguard:patient_add' %}'">
+                + 환자 등록
+            </button>
+        <!-- Calendar (CDSS 스타일) -->
+        <div class="calendar-card" id="cdssCalendar">
+            <div class="cal-header">
+                <div class="cal-title"><span id="calMonthLabel">2025-10</span></div>
+                <div class="cal-nav">
+                    <button class="cal-btn" id="calPrev">&#9664;</button>
+                    <button class="cal-btn" id="calToday">Today</button>
+                    <button class="cal-btn" id="calNext">&#9654;</button>
+                </div>
+            </div>
+            <div class="cal-grid" id="calGrid">
+                <!-- JS가 요일/날짜 채워줌 -->
+            </div>
+            <div class="cal-legend">
+                <span class="cal-leg"><span class="cal-pill" style="background:#e53935;"></span> 수술</span>
+                <span class="cal-leg"><span class="cal-pill" style="background:#1e88e5;"></span> 회의</span>
+                <span class="cal-leg"><span class="cal-pill" style="background:#fb8c00;"></span> 검사</span>
+            </div>
+
+        </div>
+
+    </div>
+
+        <!-- 중앙: 환자 목록 -->
+        <div class="center-panel">
+            <div class="patient-list-card">
+                <div class="patient-list-header">
+                    <div class="patient-list-title">환자 목록</div>
+                    <div class="patient-count">{{ total_patients }}명</div>
+                    
+                    <form method="get" action="{% url 'liverguard:home' %}" style="display: inline;">
+                        <input type="text" name="search" class="search-input" placeholder="환자 검색" value="{{ search_query }}">
+                    </form>
+                </div>
+
+                {% if patients %}
+                    <table class="patient-table">
+                        <thead>
+                            <tr>
+                                <th>환자번호</th>
+                                <th>성명</th>
+                                <th>최근 수정일</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for patient in patients %}
+                            <tr onclick="location.href='{% url 'liverguard:patient_detail' patient.patient_id %}'">
+                                <td><span class="patient-id">{{ patient.patient_id }}</span></td>
+                                <td>{{ patient.name }}</td>
+                                <td>{{ patient.created_at|date:"Y-m-d" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="no-patients">
+                        <div class="no-patients-icon">📋</div>
+                        <p>등록된 환자가 없습니다.</p>
+                        <p style="font-size: 12px; margin-top: 8px;">새 환자를 추가해주세요.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 우측: 통계 정보 -->
+        <div class="right-panel">
+            <div class="adverse-card">
+            <div class="adverse-header">
+                <div class="adverse-title">예측 부작용 정보</div>
+                <button class="ddi-btn">DDI 분석</button>
+            </div>
+
+            <ul class="adverse-list">
+                <li class="ad-item"><span class="ad-name">간독성</span><span class="ad-score">53%</span></li>
+                <li class="ad-item"><span class="ad-name">혈소판감소</span><span class="ad-score">42%</span></li>
+                <li class="ad-item"><span class="ad-name">저나트륨혈증</span><span class="ad-score">28%</span></li>
+                <li class="ad-item"><span class="ad-name">발진</span><span class="ad-score">11%</span></li>
+            </ul>
+            </div>
+
+            <div class="stats-card">
+                <div class="stats-title">시스템 현황</div>
+
+                <div class="stat-item">
+                    <div class="stat-label">총 환자 수</div>
+                    <div class="stat-value">{{ total_patients }}</div>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-label">진료 기록</div>
+                    <div class="stat-value">{{ total_records }}</div>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-label">총 처방</div>
+                    <div class="stat-value">{{ total_prescriptions }}</div>
+                </div>
+            </div>
+
+            <div class="stats-card">
+                <div class="stats-title">빠른 메뉴</div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <button class="add-patient-btn" onclick="location.href='{% url 'liverguard:patient_list' %}'">
+                        환자 목록
+                    </button>
+                    <button class="add-patient-btn" onclick="location.href='{% url 'liverguard:record_list' %}'">
+                        진료 기록
+                    </button>
+                    <button class="add-patient-btn" onclick="location.href='{% url 'liverguard:prescription_list' %}'">
+                        처방 관리
+                    </button>
+                    <button class="add-patient-btn" onclick="location.href='{% url 'liverguard:drug_list' %}'">
+                        약물 검색
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+
+<script>
+(function(){
+    const elGrid = document.getElementById('calGrid');
+    const elLabel = document.getElementById('calMonthLabel');
+    const prevBtn = document.getElementById('calPrev');
+    const nextBtn = document.getElementById('calNext');
+    const todayBtn = document.getElementById('calToday');
+
+    // --- 이벤트 샘플 데이터 ---
+    // type: surgery | meeting | checkup 등
+    const events = [
+        { date: "2025-10-02", type: "surgery",  title: "간 절제 수술" },
+        { date: "2025-10-11", type: "surgery",  title: "간암 치료 수술" },
+        { date: "2025-10-24", type: "surgery",  title: "담낭 제거 수술" },
+        { date: "2025-10-03", type: "meeting",  title: "의료진 회의" },
+        { date: "2025-10-07", type: "meeting",  title: "진료 스케줄 조정" },
+        { date: "2025-10-21", type: "meeting",  title: "환자 관리 회의" },
+        { date: "2025-10-05", type: "checkup",  title: "MRI 검사" },
+        { date: "2025-10-14", type: "checkup",  title: "CT 재검사" },
+        { date: "2025-10-27", type: "checkup",  title: "혈액검사" },
+        ];
+
+
+    // 이벤트 날짜별 정리
+    const eventMap = new Map();
+    events.forEach(e => eventMap.set(e.date, e));
+
+    // 현재 보이는 달
+    let view = new Date(); view.setDate(1);
+
+    const fmt = (d)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+    function render(){
+        elLabel.textContent = `${view.getFullYear()}-${String(view.getMonth()+1).padStart(2,'0')}`;
+        elGrid.innerHTML = "";
+
+        // 요일 헤더
+        ["일","월","화","수","목","금","토"].forEach(d=>{
+        const h=document.createElement('div'); h.className='cal-dow'; h.textContent=d; elGrid.appendChild(h);
+        });
+
+        const firstDow = (new Date(view.getFullYear(), view.getMonth(), 1)).getDay();
+        const daysInMonth = new Date(view.getFullYear(), view.getMonth()+1, 0).getDate();
+
+        // 이전 달
+        const prevLast = new Date(view.getFullYear(), view.getMonth(), 0).getDate();
+        for(let i=firstDow-1; i>=0; i--){
+        const date = new Date(view.getFullYear(), view.getMonth()-1, prevLast - i);
+        elGrid.appendChild(dayCell(date, true));
+        }
+
+        // 현재 달
+        for(let d=1; d<=daysInMonth; d++){
+        const date = new Date(view.getFullYear(), view.getMonth(), d);
+        elGrid.appendChild(dayCell(date, false));
+        }
+
+        // 다음 달
+        const filled = elGrid.children.length;
+        const toFill = (7*7) - filled;
+        for(let d=1; d<=toFill; d++){
+        const date = new Date(view.getFullYear(), view.getMonth()+1, d);
+        elGrid.appendChild(dayCell(date, true));
+        }
+    }
+
+    function dayCell(dateObj, muted){
+        const wrap = document.createElement('div'); wrap.className='cal-cell';
+        const d = document.createElement('div'); d.className='cal-day' + (muted?' muted':'');
+        d.textContent = dateObj.getDate();
+
+        const key = fmt(dateObj);
+        const event = eventMap.get(key);
+
+        // 오늘 강조
+        const today = new Date(); today.setHours(0,0,0,0);
+        if(dateObj.toDateString() === today.toDateString()) d.classList.add('today');
+
+        // 이벤트 점 표시
+        if(event){
+        const dot = document.createElement('span');
+        dot.className = 'cal-dot ' + event.type; // 점 색상 분류용
+        wrap.appendChild(dot);
+        d.title = `${event.title}`; // ← 마우스 올리면 툴팁에 "수술" "진료회의" 뜸
+}
+
+        wrap.appendChild(d);
+        wrap.addEventListener('click', ()=>{
+        alert(`${fmt(dateObj)}\n${event ? event.title : '등록된 일정 없음'}`);
+        });
+        return wrap;
+    }
+
+    prevBtn.onclick = ()=>{ view.setMonth(view.getMonth()-1); render(); };
+    nextBtn.onclick = ()=>{ view.setMonth(view.getMonth()+1); render(); };
+    todayBtn.onclick = ()=>{ const t=new Date(); view = new Date(t.getFullYear(), t.getMonth(), 1); render(); };
+
+    render();
+    })();
+</script>
+ 
+</body>
+</html>

@@ -1,0 +1,25 @@
+service: "service.py:NNUNetService"
+labels:
+  owner: antigravity
+  project: nnunet_liver_segmentation
+include:
+  - "*.py"           # service.py, auto_align.py 등 모든 파이썬 스크립트 포함
+  - "nnUNet_results/"
+
+python:
+  packages:
+    - bentoml
+    - nnunetv2
+    - torch
+    - numpy
+    - nibabel        # (추천) NIfTI 파일 다룰 때 필수, 코드에서 쓴다면 꼭 추가!
+    - SimpleITK      # (혹시 코드에서 쓴다면 추가)
+    - requests
+
+
+envs:
+  # HCC 전이학습 모델 경로
+  # 컨테이너 실행 시 -v 옵션으로 호스트 경로를 마운트해야 합니다:
+  # docker run -v "c:\my_Deeplearning_project\Lits_results\bento_lits_service\model_data:/models" ...
+  - name: LITS_MODEL_PATH
+    value: "/models"  # 컨테이너 내부 경로 (실행 시 마운트 필요)

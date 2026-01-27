@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDI 분석 - 약물 상호작용 검사</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c5f7c 0%, #1a3d52 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header-left h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .nav-btn, .logout-btn {
+            padding: 8px 20px;
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid white;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .nav-btn:hover, .logout-btn:hover {
+            background-color: rgba(255,255,255,0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a3d52;
+            margin-bottom: 10px;
+        }
+
+        .card-subtitle {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        /* 약물 입력 섹션 */
+        .drug-input-section {
+            margin-bottom: 30px;
+        }
+
+        .drug-input-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .drug-chips-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            min-height: 60px;
+            margin-bottom: 15px;
+        }
+
+        .drug-chip {
+            background-color: #2c5f7c;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .drug-chip-remove {
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .drug-chip-remove:hover {
+            color: #ffcccc;
+        }
+
+        .drug-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .drug-input-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        .drug-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .drug-input:focus {
+            outline: none;
+            border-color: #2c5f7c;
+        }
+
+        .autocomplete-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .autocomplete-dropdown.show {
+            display: block;
+        }
+
+        .autocomplete-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .autocomplete-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-loading {
+            padding: 10px 15px;
+            text-align: center;
+            color: #666;
+        }
+
+        .btn-add {
+            padding: 12px 30px;
+            background-color: #2c5f7c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .btn-add:hover {
+            background-color: #1a3d52;
+        }
+
+        .btn-analyze {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+        .btn-analyze:hover {
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-analyze:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* 결과 섹션 */
+        .results-section {
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .overall-risk {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(245, 87, 108, 0.3);
+        }
+
+        .overall-risk.low {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .overall-risk.medium {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .overall-risk.high {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .risk-emoji {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .risk-label {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .risk-score {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-box {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2c5f7c;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* 상호작용 리스트 */
+        .interactions-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .interaction-card {
+            background-color: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .interaction-card.high {
+            border-color: #f5576c;
+            background-color: #fff5f7;
+        }
+
+        .interaction-card.medium {
+            border-color: #fee140;
+            background-color: #fffef5;
+        }
+
+        .interaction-card.low {
+            border-color: #00f2fe;
+            background-color: #f0fcff;
+        }
+
+        .interaction-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .interaction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .drug-pair {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .risk-badge {
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .risk-badge.high {
+            background-color: #f5576c;
+            color: white;
+        }
+
+        .risk-badge.medium {
+            background-color: #fee140;
+            color: #333;
+        }
+
+        .risk-badge.low {
+            background-color: #00f2fe;
+            color: #333;
+        }
+
+        .interaction-description {
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* 로딩 */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2c5f7c;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background-color: #fff5f5;
+            border: 1px solid #f5576c;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .example-drugs {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .example-drugs span {
+            color: #2c5f7c;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .example-drugs span:hover {
+            color: #1a3d52;
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <div class="header">
+        <div class="header-left">
+            <h1>💊 DDI 분석 시스템 - 약물 상호작용 검사</h1>
+        </div>
+        <div class="header-right">
+            {% if doctor %}
+                <span>{{ doctor.doctor_name }} 선생님</span>
+            {% elif user.is_superuser %}
+                <span>관리자</span>
+            {% endif %}
+            <a href="{% url 'home' %}" class="nav-btn">홈으로</a>
+            <a href="{% url 'logout' %}" class="logout-btn">로그아웃</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 입력 카드 -->
+        <div class="main-card">
+            <h2 class="card-title">약물 상호작용 분석</h2>
+            <p class="card-subtitle">
+                처방하려는 약물 목록을 입력하면 약물 간 상호작용 위험도를 분석합니다.<br>
+                최소 2개 이상의 약물을 입력해주세요.
+            </p>
+
+            <div class="drug-input-section">
+                <label class="drug-input-label">약물 목록</label>
+                <div class="drug-chips-container" id="drugChipsContainer">
+                    <!-- 약물 칩이 여기에 추가됩니다 -->
+                </div>
+
+                <div class="drug-input-group">
+                    <div class="drug-input-wrapper">
+                        <input
+                            type="text"
+                            id="drugInput"
+                            class="drug-input"
+                            placeholder="약물 이름 입력 또는 선택"
+                            onkeypress="handleKeyPress(event)"
+                            oninput="handleDrugInput(event)"
+                            onfocus="handleDrugFocus()"
+                        >
+                        <div class="autocomplete-dropdown" id="autocompleteDropdown">
+                            <!-- 자동완성 항목이 여기에 표시됩니다 -->
+                        </div>
+                    </div>
+                    <button class="btn-add" onclick="addDrug()">추가</button>
+                </div>
+
+                <div class="example-drugs">
+                    예시: <span onclick="loadExample()">Metformin, Warfarin, Simvastatin, Lisinopril</span>
+                </div>
+
+                <button class="btn-analyze" id="analyzeBtn" onclick="analyzeDDI()" disabled>
+                    상호작용 분석 시작
+                </button>
+
+                <div class="error-message" id="errorMessage"></div>
+            </div>
+        </div>
+
+        <!-- 로딩 -->
+        <div class="loading" id="loadingSection">
+            <div class="spinner"></div>
+            <p>약물 상호작용 분석 중...</p>
+        </div>
+
+        <!-- 결과 카드 -->
+        <div class="results-section" id="resultsSection">
+            <div class="main-card">
+                <!-- 전체 위험도 -->
+                <div class="overall-risk" id="overallRisk">
+                    <div class="risk-emoji" id="riskEmoji">⚠️</div>
+                    <div class="risk-label" id="riskLabel">위험도 분석 중</div>
+                    <div class="risk-score" id="riskScore">0%</div>
+                </div>
+
+                <!-- 통계 -->
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-value" id="totalPairs">0</div>
+                        <div class="stat-label">전체 약물 조합</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="analyzedPairs">0</div>
+                        <div class="stat-label">분석된 조합</div>
+                    </div>
+                </div>
+
+                <!-- 상호작용 리스트 -->
+                <h3 class="interactions-title">개별 약물 조합 분석 결과</h3>
+                <div id="interactionsList">
+                    <!-- 상호작용 카드가 여기에 추가됩니다 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let drugs = [];
+        let allDrugs = [];
+        let filteredDrugs = [];
+
+        // 페이지 로드 시 약물 목록 가져오기
+        async function loadDrugList() {
+            try {
+                const response = await fetch('{% url "ddi_drug_list_api" %}');
+                const data = await response.json();
+                allDrugs = data.drugs || [];
+            } catch (error) {
+                console.error('약물 목록 로드 실패:', error);
+            }
+        }
+
+        // 페이지 로드 시 실행
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDrugList();
+
+            // 드롭다운 외부 클릭 시 닫기
+            document.addEventListener('click', function(e) {
+                const dropdown = document.getElementById('autocompleteDropdown');
+                const input = document.getElementById('drugInput');
+                if (!dropdown.contains(e.target) && e.target !== input) {
+                    dropdown.classList.remove('show');
+                }
+            });
+        });
+
+        function updateDrugChips() {
+            const container = document.getElementById('drugChipsContainer');
+            container.innerHTML = '';
+
+            drugs.forEach((drug, index) => {
+                const chip = document.createElement('div');
+                chip.className = 'drug-chip';
+                chip.innerHTML = `
+                    <span>${drug}</span>
+                    <span class="drug-chip-remove" onclick="removeDrug(${index})">×</span>
+                `;
+                container.appendChild(chip);
+            });
+
+            // 분석 버튼 활성화/비활성화
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            analyzeBtn.disabled = drugs.length < 2;
+
+            console.log('약물 개수:', drugs.length, '버튼 disabled:', analyzeBtn.disabled);
+        }
+
+        function addDrug() {
+            const input = document.getElementById('drugInput');
+            const drugName = input.value.trim();
+
+            if (drugName && !drugs.includes(drugName)) {
+                drugs.push(drugName);
+                input.value = '';
+                updateDrugChips();
+                hideError();
+                hideAutocomplete();
+            }
+        }
+
+        function removeDrug(index) {
+            drugs.splice(index, 1);
+            updateDrugChips();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const dropdown = document.getElementById('autocompleteDropdown');
+
+                // 드롭다운이 표시되어 있고 필터링된 약물이 있으면 첫 번째 항목 선택
+                if (dropdown.classList.contains('show') && filteredDrugs.length > 0) {
+                    selectDrug(filteredDrugs[0]);
+                } else {
+                    addDrug();
+                }
+            }
+        }
+
+        function handleDrugInput(event) {
+            const searchText = event.target.value.toLowerCase().trim();
+
+            if (searchText.length === 0) {
+                hideAutocomplete();
+                return;
+            }
+
+            // 약물 목록 필터링
+            filteredDrugs = allDrugs.filter(drug =>
+                drug.toLowerCase().includes(searchText)
+            ); // 최대 10개만 표시
+
+            showAutocomplete(filteredDrugs);
+        }
+
+        function handleDrugFocus() {
+            const input = document.getElementById('drugInput');
+            if (input.value.trim().length > 0) {
+                handleDrugInput({ target: input });
+            }
+        }
+
+        function showAutocomplete(drugList) {
+            const dropdown = document.getElementById('autocompleteDropdown');
+            dropdown.innerHTML = '';
+
+            if (drugList.length === 0) {
+                dropdown.innerHTML = '<div class="autocomplete-loading">검색 결과가 없습니다</div>';
+            } else {
+                drugList.forEach(drug => {
+                    const item = document.createElement('div');
+                    item.className = 'autocomplete-item';
+                    item.textContent = drug;
+                    item.onclick = () => selectDrug(drug);
+                    dropdown.appendChild(item);
+                });
+            }
+
+            dropdown.classList.add('show');
+        }
+
+        function hideAutocomplete() {
+            document.getElementById('autocompleteDropdown').classList.remove('show');
+        }
+
+        function selectDrug(drugName) {
+            const input = document.getElementById('drugInput');
+            input.value = drugName;
+            hideAutocomplete();
+            addDrug();
+        }
+
+        function loadExample() {
+            drugs = ['Metformin', 'Warfarin', 'Simvastatin', 'Lisinopril'];
+            updateDrugChips();
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').classList.remove('show');
+        }
+
+        async function analyzeDDI() {
+            if (drugs.length < 2) {
+                showError('최소 2개 이상의 약물이 필요합니다.');
+                return;
+            }
+
+            // UI 상태 변경
+            document.getElementById('loadingSection').classList.add('show');
+            document.getElementById('resultsSection').classList.remove('show');
+            hideError();
+
+            try {
+                const response = await fetch('{% url "ddi_analyze_api" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ drugs: drugs })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || '분석 중 오류가 발생했습니다.');
+                }
+
+                displayResults(data);
+
+            } catch (error) {
+                showError(error.message);
+                document.getElementById('loadingSection').classList.remove('show');
+            }
+        }
+
+        function displayResults(data) {
+            // 로딩 숨기기
+            document.getElementById('loadingSection').classList.remove('show');
+
+            // 전체 위험도
+            const overallRisk = data.overall_risk;
+            const overallRiskDiv = document.getElementById('overallRisk');
+            overallRiskDiv.className = `overall-risk ${overallRisk.level}`;
+            document.getElementById('riskEmoji').textContent = overallRisk.emoji;
+            document.getElementById('riskLabel').textContent = `전체 위험도: ${overallRisk.label}`;
+            document.getElementById('riskScore').textContent = `${(overallRisk.score * 100).toFixed(1)}%`;
+
+            // 통계
+            document.getElementById('totalPairs').textContent = data.total_pairs;
+            document.getElementById('analyzedPairs').textContent = data.analyzed_pairs;
+
+            // 상호작용 리스트
+            const interactionsList = document.getElementById('interactionsList');
+            interactionsList.innerHTML = '';
+
+            if (data.interactions && data.interactions.length > 0) {
+                data.interactions.forEach(interaction => {
+                    const card = document.createElement('div');
+                    card.className = `interaction-card ${interaction.risk.level}`;
+                    card.innerHTML = `
+                        <div class="interaction-header">
+                            <div class="drug-pair">${interaction.risk.emoji} ${interaction.drug1} + ${interaction.drug2}</div>
+                            <div class="risk-badge ${interaction.risk.level}">
+                                ${interaction.risk.label} ${(interaction.risk.score * 100).toFixed(1)}%
+                            </div>
+                        </div>
+                        <div class="interaction-description">${interaction.description}</div>
+                    `;
+                    interactionsList.appendChild(card);
+                });
+            } else {
+                interactionsList.innerHTML = '<p style="text-align: center; color: #666;">검출된 상호작용이 없습니다.</p>';
+            }
+
+            // 결과 섹션 표시
+            document.getElementById('resultsSection').classList.add('show');
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

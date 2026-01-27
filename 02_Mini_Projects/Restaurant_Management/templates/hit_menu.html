@@ -1,0 +1,70 @@
+{% set body_class = "sub_page" %}
+{% extends "index.html" %}
+
+{% block rendering_page %}
+<section class="food_section layout_padding">
+  <div class="container">
+    <div class="heading_container heading_center">
+      <h2>
+        우리가게 TOP 5 MENU
+      </h2>
+    </div>
+    <h4>
+      <p class="filters_menu">
+        <strong>{{ storename }}의 매출 주력상품은...</strong>
+      </p>
+    </h4>
+    {% if object_list %} {# DB에 등록된 메뉴가 있는 경우 #} {# 진자 쓸 때 주석 사용 방법 #}
+    <div class="filters-content">
+      <div class="row grid">
+          {% for list in object_list %}
+          <div class="col-sm-6 col-lg-4 all pizza">
+            <div class="box">
+              <div>
+                <div class="img-box">
+                  <!-- <img src="{{ url_for('static', filename='images/f1.png') }}" alt=""> -->
+                  <div id="image-placeholder" style="font-weight: bold; color: gray;">
+                    이미지 준비중
+                  </div>
+
+                </div>
+                <div class="detail-box">
+                  <ul class="menu-info" style="list-style: none; padding: 0; margin: 0;">
+                    <li>메뉴&nbsp;&nbsp;&nbsp;   - &nbsp; {{ list.menuname}} </li>
+                    <li>가격&nbsp;&nbsp;&nbsp;   - &nbsp; {{ list.price}}</li>
+                    <li>판매량 - &nbsp; {{ list.amount}}</li>
+                    <li>판매액 - &nbsp; {{ list.total}}</li>
+                    <li>랭킹&nbsp;&nbsp;&nbsp;    -  &nbsp; {{ list.sales_rank}}</li>
+                  </ul>
+                
+                </div>
+
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <center>
+    <div class="col-sm-6 col-lg-4 all pizza">
+        <p class="filters_menu">
+          매출등록된 메뉴가 없습니다.
+        </P>
+    </div></center>
+    {% endif %}
+    
+    <div class="btn-box">
+      {% if object_list %}
+      <a href="sales_list">
+        전체 매출 보기
+      </a>
+      {% else %}
+      <a href="sales_insert">
+        매출 등록 하기
+      </a>
+      {% endif %} 
+    </div>
+  </div>
+</section>
+{% endblock rendering_page %}

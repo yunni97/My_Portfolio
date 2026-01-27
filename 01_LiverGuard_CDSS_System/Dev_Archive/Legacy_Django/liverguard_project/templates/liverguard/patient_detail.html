@@ -1,0 +1,82 @@
+{% extends 'liverguard/base.html' %}
+
+{% block title %}{{ patient.name }} - 환자 상세{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-md-6">
+        <h2><i class="bi bi-person"></i> 환자 상세 정보</h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="{% url 'liverguard:patient_list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> 목록으로
+        </a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">기본 정보</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>환자 ID:</strong> {{ patient.patient_id }}</p>
+                <p><strong>이름:</strong> {{ patient.name }}</p>
+                <p><strong>생년월일:</strong> {{ patient.birth_date }}</p>
+                <p><strong>성별:</strong>
+                    {% if patient.sex == 'male' %}
+                        <span class="badge bg-primary">남성</span>
+                    {% else %}
+                        <span class="badge bg-danger">여성</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>연락처:</strong> {{ patient.phone }}</p>
+                <p><strong>주소:</strong> {{ patient.address|default:"미등록" }}</p>
+                <p><strong>등록일:</strong> {{ patient.created_at|date:"Y-m-d H:i" }}</p>
+                <p><strong>수정일:</strong> {{ patient.updated_at|date:"Y-m-d H:i" }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0"><i class="bi bi-file-medical"></i> 진료 기록</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>진료일</th>
+                        <th>주증상</th>
+                        <th>담당의사</th>
+                        <th>상세</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr>
+                        <td>{{ record.visit_date|date:"Y-m-d H:i" }}</td>
+                        <td>{{ record.chief_complatint|default:"없음" }}</td>
+                        <td>{{ record.doctor_id }}</td>
+                        <td>
+                            <a href="{% url 'liverguard:record_detail' record.record_id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> 상세보기
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center">진료 기록이 없습니다.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

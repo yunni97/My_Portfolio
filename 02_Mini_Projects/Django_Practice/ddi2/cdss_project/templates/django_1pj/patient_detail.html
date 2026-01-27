@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>환자 상세 정보</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left h1 {
+            font-size: 24px;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-outline {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+        }
+
+        .profile-name {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .profile-id {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .patient-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .badge-high {
+            background-color: #fee;
+            color: #c33;
+        }
+
+        .badge-medium {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-low {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .info-box {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .info-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .info-value {
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+            color: #2c3e50;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .info-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .info-group label {
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .info-group .value {
+            font-size: 15px;
+            color: #2c3e50;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border: 1px solid #e9ecef;
+        }
+
+        .ct-image-section {
+            margin-top: 20px;
+        }
+
+        .ct-image-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        .ct-image-container img {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .no-image {
+            padding: 60px 20px;
+            text-align: center;
+            color: #999;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            border: 2px dashed #ddd;
+        }
+
+        .no-image-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+
+        /* 팝업 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .close {
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            transition: transform 0.2s;
+        }
+
+        .close:hover {
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .modal-section {
+            margin-bottom: 25px;
+        }
+
+        .modal-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .modal-section-content {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .modal-section-content ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .modal-section-content li {
+            margin-bottom: 8px;
+        }
+
+        .drug-link {
+            color: #667eea;
+            text-decoration: underline;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .drug-link:hover {
+            color: #764ba2;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .badge-danger {
+            background-color: #fee;
+            color: #c33;
+        }
+
+        .badge-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <h1>🏥 간암 예후관리 CDSS</h1>
+        </div>
+        <div class="header-right">
+            <a href="{% url 'home' %}" class="btn btn-outline">← 환자 목록</a>
+            <a href="{% url 'logout' %}" class="btn btn-outline">로그아웃</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="profile-card">
+                <div class="profile-avatar">👤</div>
+                <div class="profile-name">{{ patient.name }}</div>
+                <div class="profile-id">{{ patient.patient_id }}</div>
+                {% if patient.recurrence_risk %}
+                <div>
+                    {% if patient.recurrence_risk == 'high' %}
+                        <span class="patient-badge badge-high">고위험</span>
+                    {% elif patient.recurrence_risk == 'medium' %}
+                        <span class="patient-badge badge-medium">중위험</span>
+                    {% elif patient.recurrence_risk == 'low' %}
+                        <span class="patient-badge badge-low">저위험</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="info-box">
+                <div class="info-title">기본 정보</div>
+                <div class="info-item">
+                    <span class="info-label">생년월일</span>
+                    <span class="info-value">{{ patient.birth_date|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">성별</span>
+                    <span class="info-value">{% if patient.gender == 'M' %}남성{% elif patient.gender == 'F' %}여성{% else %}-{% endif %}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">담당의</span>
+                    <span class="info-value">{{ patient.doctor.doctor_name|default:"-" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- 진단 정보 -->
+            <div class="content-card">
+                <div class="section-title">📋 진단 정보</div>
+                <div class="info-grid">
+                    <div class="info-group">
+                        <label>진단일</label>
+                        <div class="value">{{ patient.diagnosis_date|default:"-" }}</div>
+                    </div>
+                    <div class="info-group">
+                        <label>BCLC 병기</label>
+                        <div class="value">
+                            {% if patient.bclc_stage == '0' %}Stage 0 (Very early)
+                            {% elif patient.bclc_stage == 'A' %}Stage A (Early)
+                            {% elif patient.bclc_stage == 'B' %}Stage B (Intermediate)
+                            {% elif patient.bclc_stage == 'C' %}Stage C (Advanced)
+                            {% elif patient.bclc_stage == 'D' %}Stage D (Terminal)
+                            {% else %}-{% endif %}
+                        </div>
+                    </div>
+                    <div class="info-group">
+                        <label>종양 크기</label>
+                        <div class="value">{% if patient.tumor_size %}{{ patient.tumor_size }} cm{% else %}-{% endif %}</div>
+                    </div>
+                    <div class="info-group">
+                        <label>종양 개수</label>
+                        <div class="value">{{ patient.tumor_count|default:"-" }}</div>
+                    </div>
+                    <div class="info-group">
+                        <label>혈관 침범</label>
+                        <div class="value">{% if patient.vascular_invasion %}있음{% else %}없음{% endif %}</div>
+                    </div>
+                    <div class="info-group">
+                        <label>Child-Pugh 등급</label>
+                        <div class="value">{{ patient.child_pugh|default:"-" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 바이오마커 정보 -->
+            <div class="content-card">
+                <div class="section-title">🔬 바이오마커</div>
+                <div class="info-grid">
+                    <div class="info-group">
+                        <label>초기 AFP (ng/mL)</label>
+                        <div class="value">{{ patient.afp_initial|default:"-" }}</div>
+                    </div>
+                    <div class="info-group">
+                        <label>최근 AFP (ng/mL)</label>
+                        <div class="value">{{ patient.afp_current|default:"-" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 치료 정보 -->
+            <div class="content-card">
+                <div class="section-title">💊 치료 정보</div>
+                <div class="info-grid">
+                    <div class="info-group">
+                        <label>치료 방식</label>
+                        <div class="value">
+                            {% if patient.treatment_type == 'surgery' %}수술적 절제
+                            {% elif patient.treatment_type == 'transplant' %}간이식
+                            {% elif patient.treatment_type == 'tace' %}TACE
+                            {% elif patient.treatment_type == 'sorafenib' %}<span class="drug-link" onclick="showDrugInfo('sorafenib')">소라페닙</span>
+                            {% elif patient.treatment_type == 'lenvatinib' %}<span class="drug-link" onclick="showDrugInfo('lenvatinib')">렌바티닙</span>
+                            {% else %}-{% endif %}
+                        </div>
+                    </div>
+                    <div class="info-group">
+                        <label>치료 시작일</label>
+                        <div class="value">{{ patient.treatment_start_date|default:"-" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 추적 관찰 -->
+            <div class="content-card">
+                <div class="section-title">📅 추적 관찰</div>
+                <div class="info-grid">
+                    <div class="info-group">
+                        <label>다음 CT 검사일</label>
+                        <div class="value">{{ patient.next_ct_date|default:"-" }}</div>
+                    </div>
+                    <div class="info-group">
+                        <label>다음 혈액검사일</label>
+                        <div class="value">{{ patient.next_blood_test_date|default:"-" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CT 이미지 -->
+            <div class="content-card">
+                <div class="section-title">🩻 간암 CT 이미지</div>
+                <div class="ct-image-section">
+                    {% if patient.ct_image %}
+                        <div class="ct-image-container">
+                            <img src="{{ patient.ct_image.url }}" alt="CT 이미지">
+                        </div>
+                    {% else %}
+                        <div class="no-image">
+                            <div class="no-image-icon">📄</div>
+                            <p>등록된 CT 이미지가 없습니다.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 약물 정보 팝업 모달 -->
+    <div id="drugModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalDrugName">약물 정보</h2>
+                <span class="close" onclick="closeDrugModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="modalDrugBody">
+                <!-- JavaScript로 동적으로 내용 삽입 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 약물 정보 데이터 (샘플 - 나중에 DB에서 가져올 수 있음)
+        const drugInfo = {
+            'sorafenib': {
+                name: '소라페닙 (Sorafenib)',
+                category: '항암제 - 다중표적 티로신 키나제 억제제',
+                dosage: `
+                    <ul>
+                        <li>1회 400mg (2정), 1일 2회 경구 투여</li>
+                        <li>식사 1시간 전 또는 식후 2시간에 복용</li>
+                        <li>총 1일 용량: 800mg</li>
+                    </ul>
+                `,
+                efficacy: `간세포암종(HCC), 신세포암종(RCC), 갑상선암 치료에 사용됩니다.
+                종양의 성장을 억제하고 혈관 신생을 차단하여 암세포의 증식을 방해합니다.`,
+                commonSideEffects: `
+                    <ul>
+                        <li>피로감 (53%)</li>
+                        <li>식욕 감소 (53%)</li>
+                        <li>설사 (43%)</li>
+                        <li>수족피부반응 (Hand-Foot Syndrome)</li>
+                        <li>고혈압</li>
+                    </ul>
+                `,
+                seriousSideEffects: `
+                    <ul>
+                        <li>간 기능 장애</li>
+                        <li>출혈</li>
+                        <li>심근경색</li>
+                        <li>위장관 천공</li>
+                        <li>중증 피부 반응</li>
+                    </ul>
+                `,
+                precautions: `
+                    <ul>
+                        <li>간 기능 검사 정기적 모니터링 필요</li>
+                        <li>혈압 측정 정기적으로 시행</li>
+                        <li>출혈 위험이 있으므로 주의 관찰</li>
+                        <li>임신부 금기</li>
+                    </ul>
+                `,
+                contraindications: `Child-Pugh C 등급의 중증 간 기능 장애 환자, 소라페닙 또는 부형제에 과민반응이 있는 환자`
+            },
+            'lenvatinib': {
+                name: '렌바티닙 (Lenvatinib)',
+                category: '항암제 - 다중표적 티로신 키나제 억제제',
+                dosage: `
+                    <ul>
+                        <li>체중 ≥60kg: 1일 1회 12mg 경구 투여</li>
+                        <li>체중 <60kg: 1일 1회 8mg 경구 투여</li>
+                        <li>음식과 관계없이 복용 가능</li>
+                    </ul>
+                `,
+                efficacy: `간세포암종(HCC), 갑상선암, 신세포암종(RCC) 치료에 사용됩니다.
+                VEGFR, FGFR 등을 억제하여 종양 성장과 혈관 신생을 차단합니다.`,
+                commonSideEffects: `
+                    <ul>
+                        <li>고혈압 (42%)</li>
+                        <li>피로감 (44%)</li>
+                        <li>설사 (39%)</li>
+                        <li>식욕 감소 (34%)</li>
+                        <li>체중 감소</li>
+                        <li>구역</li>
+                    </ul>
+                `,
+                seriousSideEffects: `
+                    <ul>
+                        <li>고혈압 위기</li>
+                        <li>심부전</li>
+                        <li>간 기능 장애</li>
+                        <li>단백뇨</li>
+                        <li>출혈</li>
+                        <li>동맥 혈전 색전증</li>
+                    </ul>
+                `,
+                precautions: `
+                    <ul>
+                        <li>혈압 모니터링 필수 (매일 측정 권장)</li>
+                        <li>간 기능 검사 정기적으로 시행</li>
+                        <li>소변 단백 검사 정기 실시</li>
+                        <li>출혈 징후 관찰</li>
+                        <li>임신 중 사용 금기</li>
+                    </ul>
+                `,
+                contraindications: `렌바티닙 또는 부형제에 과민반응이 있는 환자, 임신부`
+            }
+        };
+
+        function showDrugInfo(drugCode) {
+            const drug = drugInfo[drugCode];
+            if (!drug) return;
+
+            document.getElementById('modalDrugName').textContent = drug.name;
+
+            const bodyHtml = `
+                <div class="modal-section">
+                    <div class="modal-section-title">
+                        <span class="badge badge-info">분류</span> 약물 분류
+                    </div>
+                    <div class="modal-section-content">${drug.category}</div>
+                </div>
+
+                <div class="modal-section">
+                    <div class="modal-section-title">
+                        <span class="badge badge-info">용법</span> 용법/용량
+                    </div>
+                    <div class="modal-section-content">${drug.dosage}</div>
+                </div>
+
+                <div class="modal-section">
+                    <div class="modal-section-title">효능/효과</div>
+                    <div class="modal-section-content">${drug.efficacy}</div>
+                </div>
+
+                <div class="modal-section">
+                    <div class="modal-section-title">
+                        <span class="badge badge-warning">주의</span> 일반적인 부작용
+                    </div>
+                    <div class="modal-section-content">${drug.commonSideEffects}</div>
+                </div>
+
+                <div class="modal-section">
+                    <div class="modal-section-title">
+                        <span class="badge badge-danger">위험</span> 심각한 부작용
+                    </div>
+                    <div class="modal-section-content">${drug.seriousSideEffects}</div>
+                </div>
+
+                <div class="modal-section">
+                    <div class="modal-section-title">주의사항</div>
+                    <div class="modal-section-content">${drug.precautions}</div>
+                </div>
+
+                <div class="modal-section">
+                    <div class="modal-section-title">
+                        <span class="badge badge-danger">금기</span> 금기사항
+                    </div>
+                    <div class="modal-section-content">${drug.contraindications}</div>
+                </div>
+            `;
+
+            document.getElementById('modalDrugBody').innerHTML = bodyHtml;
+            document.getElementById('drugModal').style.display = 'block';
+        }
+
+        function closeDrugModal() {
+            document.getElementById('drugModal').style.display = 'none';
+        }
+
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            const modal = document.getElementById('drugModal');
+            if (event.target == modal) {
+                closeDrugModal();
+            }
+        }
+    </script>
+</body>
+</html>

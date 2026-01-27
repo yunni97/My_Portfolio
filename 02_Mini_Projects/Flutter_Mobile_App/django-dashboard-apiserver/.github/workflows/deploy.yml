@@ -1,0 +1,69 @@
+name: Django Deploy to GCP
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: asia-northeast3
+  REPOSITORY: liverguard-repo
+  IMAGE_NAME: django-app
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Checkout source
+    - name: Checkout source
+      uses: actions/checkout@v4
+
+    # 2. Authenticate with Service Account JSON
+    - name: Google Auth
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    # 3. Set up Google Cloud auth (JSON Key)
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+    
+    # 4. Configure docker to use gcloud as a credential helper
+    - name: Configure Docker for gcloud
+      run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+    # 5. Build Docker image
+    - name: Build Docker image
+      run: |
+        docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest .
+
+    # 6. Push image to Artifact Registry
+    - name: Push Docker image
+      run: |
+        docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
+
+    # 7. SSH into GCP VM and deploy
+    - name: SSH Deploy to GCE
+      uses: appleboy/ssh-action@v1.2.0
+      with:
+        host: ${{ secrets.SERVER_IP }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 22
+        script: |
+          echo ">>> Move to app directory"
+          cd ~/Dashboard_App
+
+          echo ">>> Pull latest image from Artifact Registry"
+          docker compose pull --ignore-pull-failures
+
+          echo ">>> Recreate containers with newest images"
+          docker compose up -d --pull always --force-recreate --no-deps django
+
+          echo ">>> Cleaning unused images"
+          docker image prune -f
+
+          echo ">>> Deployment done!"

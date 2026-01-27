@@ -1,0 +1,61 @@
+{% extends 'liverguard/base.html' %}
+
+{% block title %}약물 검색 - LiverGuard AI{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-md-6">
+        <h2><i class="bi bi-capsule"></i> 약물 검색</h2>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" action="{% url 'liverguard:drug_list' %}">
+            <div class="input-group">
+                <input type="text" class="form-control" name="q" placeholder="약물명을 입력하세요" value="{{ query }}">
+                <button class="btn btn-primary" type="submit">
+                    <i class="bi bi-search"></i> 검색
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>약물 ID</th>
+                        <th>한글명</th>
+                        <th>영문명</th>
+                        <th>분류</th>
+                        <th>상세</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for drug in drugs %}
+                    <tr>
+                        <td>{{ drug.drug_id }}</td>
+                        <td>{{ drug.name_kr|truncatechars:50 }}</td>
+                        <td>{{ drug.name_eng|truncatechars:50 }}</td>
+                        <td><span class="badge bg-info">{{ drug.drug_category }}</span></td>
+                        <td>
+                            <a href="{% url 'liverguard:drug_detail' drug.drug_id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> 상세보기
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">검색 결과가 없습니다.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

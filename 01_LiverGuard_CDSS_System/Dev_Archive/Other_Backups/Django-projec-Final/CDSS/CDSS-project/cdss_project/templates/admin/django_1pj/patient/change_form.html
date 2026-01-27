@@ -1,0 +1,18 @@
+{% extends "admin/change_form.html" %}
+{% load admin_urls %}
+
+{% block object-tools %}
+    {% if change %}
+        {# 기존 환자 수정 시 - 조회 버튼만 표시 #}
+        <ul class="object-tools">
+            <li>
+                <a href="{% url 'admin:django_1pj_patient_history' original.pk %}" class="historylink">이력 보기</a>
+            </li>
+            <li>
+                <a href="{% url 'patient_detail' original.pk %}" class="viewlink" target="_blank" style="background: #667eea; color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none;">👁️ 환자 상세 보기</a>
+            </li>
+        </ul>
+    {% else %}
+        {# 새 환자 추가 시 - 아무것도 표시하지 않음 #}
+    {% endif %}
+{% endblock %}

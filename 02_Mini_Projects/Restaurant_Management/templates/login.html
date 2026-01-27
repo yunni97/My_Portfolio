@@ -1,0 +1,41 @@
+{% extends "index.html" %}
+
+{% block contents %}
+
+<section class="slider_section ">
+  <div id="customCarousel1" class="carousel slide" data-ride="carousel">
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <div class="container ">
+          <div class="row">
+            <div class="col-md-7 col-lg-6 ">
+              <div class="detail-box">
+                <h1>
+                  Restaurant Program
+                </h1>
+                <p>
+                  내 가게의 매출을 손쉽게 관리하세요
+                </p>
+                <form action="/login" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <input type="text" class="form-control" name = "userid" placeholder="사용자 아이디 입력" />
+                  <input type="password" class="form-control" name = "pw" placeholder="비밀번호 입력" />
+                  <button href="" class="btn1">
+                    Login
+                  </button>
+                </form>  
+                </div>
+                <div class="btn-box">
+                  <a href="/store_insert" class="btn1"> 업체 신규 등록 </a> <!-- 업체 신규 등록 페이지 필요 -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+</section>
+
+{% endblock contents %}

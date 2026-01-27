@@ -1,0 +1,86 @@
+{% extends "index.html" %}
+
+
+{% block contents %}
+<!-- slider section -->
+<section class="slider_section ">
+  <div id="customCarousel1" class="carousel slide" data-ride="carousel">
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <div class="container ">
+          <div class="row">
+            <div class="col-md-7 col-lg-6 ">
+              <div class="detail-box">
+                <h1>
+                  Restaurant Program
+                </h1>
+                <p>
+                  내 가게의 매출을 손쉽게 관리하세요
+                </p>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <h3>
+                    {{ user }}님 환영합니다.
+                  </h3>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-item ">
+        <div class="container ">
+          <div class="row">
+            <div class="col-md-7 col-lg-6 ">
+              <div class="detail-box">
+                <h1>
+                  매출 조회 및 관리
+                </h1>
+                <p>
+                  우리가게 매출 조회하기
+                </p>
+                <div class="btn-box">
+                  <a href="/sales_list" class="btn1">
+                    보러가기
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <div class="container ">
+          <div class="row">
+            <div class="col-md-7 col-lg-6 ">
+              <div class="detail-box">
+                <h1>
+                  히트상품 조회
+                </h1>
+                <p>
+                  사장님 가게의 매출 TOP5 메뉴와 매출액을 확인해보세요 
+                </p>
+                <div class="btn-box">
+                  <a href="hitMenu" class="btn1">
+                    보러가기
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <ol class="carousel-indicators">
+        <li data-target="#customCarousel1" data-slide-to="0" class="active"></li>
+        <li data-target="#customCarousel1" data-slide-to="1"></li>
+        <li data-target="#customCarousel1" data-slide-to="2"></li>
+      </ol>
+    </div>
+  </div>
+
+</section>
+<!-- end slider section -->
+
+{% endblock contents %}

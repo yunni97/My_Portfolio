@@ -1,0 +1,70 @@
+{% set body_class = "sub_page" %}
+{% extends "index.html" %}
+{% block rendering_page %} 
+
+<section class="book_section layout_padding">
+  <div class="container">
+    <div class="heading_container">
+      <h2>
+        찾으신 검색결과 입니다.
+      </h2>
+    </div>
+    <table class="table"  style="text-align: center;">
+      <thead>
+          <tr>
+              <th>번호</th>
+              <th>가게이름</th>
+              <th>메뉴이름</th>
+              <th>가격</th>
+              <th>판매수량</th>
+              <th>판매액</th>
+              <th>제품판매 순위</th>
+              <th>수정</th>
+              <th>삭제</th>
+          </tr>
+      </thead>
+      <tbody>
+        {% if data.result_code == 1  and data.menu_data is not none %} <!-- 결과 코드가 1이면 데이터가 있는 거니까 화면에 출력하기-->
+          <tr>
+            <td>{{ data.menu_data[0]  }}</td>
+            <td>{{ data.menu_data[6] }}</td>
+            <td>{{ data.menu_data[1] }}</td>
+            <td>{{ data.menu_data[2] }}</td>
+            <td>{{ data.menu_data[3] }}</td>
+            <td>{{ data.menu_data[4] }}</td>
+            <td>{{ data.menu_data[5] }}</td>
+
+            <td>
+                <form action="/sales_update" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="menuname" value="{{ data.menu_data[1] }}">
+                    <input type="hidden" name="price" value="{{ data.menu_data[2] }}">
+                    <input type="hidden" name="amount_old" value="{{ data.menu_data[3] }}">
+                    <div class = "btn_box">
+                    </div>
+                    <div class="user_option" style="margin-left:18%;">
+                      <button type="submit" class="update_btn">판매수량 수정</button>
+                    </div>
+                </form>
+            </td>
+
+            <td>
+              <form action="/sales_delete" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="menuname" value="{{ data.menu_data[1] }}">
+                <div class="user_option" style="margin-left:18%;">
+                  <button type="submit" class="del_btn">메뉴 삭제</button>
+                </div>
+              </form>
+            </td>
+          </tr> 
+        {% else %} <!-- 결과 코드가 1이 아니면 데이터가 없으니까 없다고 안내해주기 -->
+          <tr>
+            <td colspan="7"><center>찾으시는 데이터가 없습니다.</center></td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock rendering_page %}

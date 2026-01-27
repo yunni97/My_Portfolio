@@ -1,0 +1,41 @@
+{% extends "index.html" %}
+
+{% block contents %}
+
+<section class="slider_section ">
+  <div id="customCarousel1" class="carousel slide" data-ride="carousel">
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <div class="container ">
+          <div class="row">
+            <div class="col-md-7 col-lg-6 ">
+              <div class="detail-box">
+                <h1>
+                  register store
+                </h1>
+                <p>
+                  간단한 가게 등록으로 편리하게 관리하세요
+                </p>
+                <form action="/store_insert_action" method="POST">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div style="display: flex; flex-direction: column; gap: 1px; align-items: center;">
+                  <input type="text" class="form-control" name="storename" placeholder="가게 상호명 입력" required />
+                  <br></br>
+                  <input type="text" class="form-control" name="userid" placeholder="사용자아이디 입력" required />
+                  <br></br>
+                  <input type="password" class="form-control" name="password" placeholder="비밀번호 입력" required />
+                </div>
+                <div class="btn-box">
+                  <button href="/store_insert" class="btn1" type="submit"> register </button> <!--등록되면 등록 완료 alert 후, login 화면으로-->
+                </div>
+              </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+</section>
+
+{% endblock contents %}

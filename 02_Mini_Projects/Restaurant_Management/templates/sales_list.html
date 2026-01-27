@@ -1,0 +1,88 @@
+{% set body_class = "sub_page" %}
+{% extends "index.html" %}
+
+{% block rendering_page %}
+<!-- book section -->
+<section class="book_section layout_padding">
+  <div class="container">
+    <div class="heading_container">
+      <h2>
+        매출 현황 조회
+      </h2>
+    </div>
+    <div>
+      <!-- 매출 등록 (메뉴명, 판매수량, 판매량  insert ) 해주기 -->
+      <div class="user_option">
+        <a href="{{ '/sales_insert'}}" class="order_online">신규 매출 등록</a>
+        <!-- <form class="form-inline">
+        <button class="btn  my-2 my-sm-0 nav_search-btn" type="button" >
+          <i class="fa fa-search" aria-hidden="true"></i>
+        </button>
+        </form> -->
+      </div>
+    </div>
+    <div>
+    </div>
+    <br>
+    <table class="table" style="text-align: center;">
+      <thead>
+          <tr>
+              <th>번호</th><th>메뉴이름</th><th>가격</th>
+              <th>판매수량</th><th>판매액</th><th>순위</th>
+              <th>수정</th><th>삭제</th>
+          </tr>
+      </thead>
+        <!-- 매출 현황 출력 표 만들기 
+        1. 반복문 변수명 수정해서 테이블 행 구성하기 (SELECT)
+        2. 수정/ 삭제 버튼 action 경로 변경하기
+        3. 수정 / 삭제 버튼의 id랑 name 변경하기 
+        4. 수정 버튼 클릭 시, 판매수량을 수정해주는 폼 보여주기
+        수정 폼UI는 메뉴명, 판매금액은 보여주고 수정안되게 표출해놓고, 판매수량을 변경(input)하고 저장(submit)누르면 DB에 수량 변경 될 수 있도록
+        변경이 끝나고 나면 수정완료 알림창(alert창, 시간되면 sweetalert 가져다 쓰기) 보여주고 
+        -> 메뉴명을 받아서 해당 메뉴의 판매목록 검색(검색 SELECT) 폼 보여지도록 (수정된 메뉴 1개만 목록으로 출력되는 것)
+        + main.py에 csrf_token 생성코드 있는지 확인 후 없으면 넣어주기
+        5. 삭제버튼 클릭시, 메뉴명을 DB에 파라미터로 던져주고, DB 데이터 삭제되도록 구현
+        -> 삭제도 완료되면 삭제완료창 구현하고, 매출 현황 출력 표(현재 이 html 파일) 보여주거나, 메인화면으로 이동되게 구현
+        6. 신규 매출등록 (book.html 활용) => insert 후 alert 띄우기 =>  매출조회 (현재 이 html 파일)가 화면에 보여지도록
+        6-1. 신규 등록 시 이미 등록된 메뉴인 경우 => 판매수량을 수정 하라고 알려줘야함.(여기까지 구현할 시간이 있을지는 모르겠지만.. 일단 적어둘게요.)
+
+        --> 
+      <tbody>
+        {% if object_list is not none and object_list %}
+          {% for menu in object_list %} <!-- 여러개의 행을 호출해와서 한번씩 반복해서 행 그리기 -->
+          <tr>
+              <td>{{ menu[0]}}</td><td>{{ menu[1]}}</td><td>{{ menu[2]}}</td>
+              <td>{{ menu[3]}}</td><td>{{ menu[4]}}</td><td>{{ menu[5]}}</td>
+              <td>
+                  <form action="/sales_update" method="post" class="form-inline">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <input type="hidden" name="menuname" value="{{ menu[1] }}">
+                      <input type="hidden" name="price" value="{{ menu[2] }}">
+                      <input type="hidden" name="amount_old" value="{{ menu[3] }}">
+                      <div class="user_option" style="margin-left:18%;">
+                        <button type="submit" class="update_btn">판매수량 수정</button>
+                      </div>
+                  </form>
+              </td>
+
+              <td>
+                <form action="/sales_delete" method="post">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="menuname" value="{{ menu[1] }}">
+                  <div class="user_option" style="margin-left:18%;">
+                    <button type="submit" class="del_btn">메뉴 삭제</button>
+                  </div>
+                </form>
+              </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="8"><center>찾으시는 데이터가 없습니다.</center></td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock rendering_page %}

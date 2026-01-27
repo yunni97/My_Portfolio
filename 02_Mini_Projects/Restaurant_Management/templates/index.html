@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- Basic -->
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- Mobile Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <!-- Site Metas -->
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="">
+  <!-- 토큰 연결 -->
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+
+  <title> Restaurant Progect </title>
+
+  <!-- bootstrap core css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.css') }}" />
+
+  <!--owl slider stylesheet -->
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+  <!-- nice select  -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css" integrity="sha512-CruCP+TD3yXzlvvijET8wV5WxxEh5H8P4cmz0RFbKK6FlZ2sYl3AEsKlLPHbniXKSrDdFewhbmBK5skbdsASbQ==" crossorigin="anonymous" />
+  <!-- font awesome style -->
+  <link href="{{ url_for('static', filename='css/font-awesome.min.css') }}" rel="stylesheet" />
+
+  <!-- Custom styles for this template -->
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" />
+  <!-- responsive style -->
+  <link href="{{ url_for('static', filename='css/responsive.css') }}" rel="stylesheet" />
+  <!-- 만들면서 추가된 css -->
+  <link href="{{ url_for('static', filename='css/menuStyle.css') }}" rel="stylesheet" />
+
+
+</head>
+
+<body{% if body_class %} class="{{ body_class }}"{% endif %}>
+  {# 서버단에서 message를 보내주면 해당메시지를 alert로 보여줌 #}
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <script>
+        {% for msg in messages %}
+          alert("{{ msg }}");
+        {% endfor %}
+      </script>
+    {% endif %}
+  {% endwith %}
+
+  <div class="hero_area">
+    <div class="bg-box">
+      <!-- 메인에 있는 햄버거 이미지 (메인 이미지 변경 위치)-->
+      <img src="{{ url_for('static', filename='images/hero-bg.jpg') }}" alt="">
+    </div>
+    <!-- header : 화면 상단의 메뉴바 구성 -->
+    <header class="header_section">
+      <div class="container">
+        <nav class="navbar navbar-expand-lg custom_nav-container ">
+          <a class="navbar-brand" href="/">
+            <span>
+              Team 4
+            </span>
+          </a>
+
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class=""> </span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav  mx-auto ">
+              <li class="nav-item active">
+                <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/sales_list">매출 조회 및 관리</a> 
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/hitMenu">히트상품 조회</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#" onclick="toggleStoreForm()">가게 관리</a>
+                </a>
+              <div id="storeForm" hidden>
+                <div class="form_group">
+                  <label style="color:#ffffff;">가게 상태 변경</label><br>
+                  <select id="actionSelect" onchange="toggleForm()" class="form-control">    
+                    <option value="" selected>-- 운영중 --</option>
+                    <option value="update">상호명 수정</option>
+                    <option value="delete">폐업신고</option>
+                  </select>
+                </div>
+                <form action="/update_store" method="POST" id="updateForm" style="display:none;">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <label for="beforename" style="color:#ffffff;">현재 상호명: &nbsp; {{storename}}</label><br>
+                  <div style="display: flex; align-items: center;">
+                    <label for="updatename" style="color:#ffffff;">신규 상호명:</label><br>
+                    <input type="text" name="updatename" id="updatename" 
+                     required style="width: 130px;"><br>
+                  </div>
+                  <button type="submit" class="form-control">상호명 수정</button>
+                </form>
+                <form action="/delete_store" method="POST" id="deleteForm" style="display:none;">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <label for="deletename" style="color:#ffffff;">폐업할 상호명:&nbsp; {{storename}}</label><br>
+                  <button type="submit" class="form-control">폐업 신고</button>
+                </form>
+              </div> <!--href="/menu" -->
+              </li>
+              
+            </ul>
+            <div class="user_option">
+              <!-- 
+                1. 사용자 아이콘 클릭 시, 
+                =>> 폐업신고인지, 상호명 수정인지 선택할 수 있도록 만들고
+                2. 상호명(가게이름) 수정인 경우:  수정할 상호명과 변경할 상호명을 입력받아서 가게테이블에 수정하기
+                3. 폐업신고 선택하면, 가게에서 해당 가게는 삭제되도록 구현
+              -->
+              <a href="#" class="user_link">
+                {% if "user" in session : %}
+                <i class="fa fa-user" aria-hidden="true"> {{  session["user"]  }}님</i>
+                {% else : %}
+                <i class="fa fa-user" aria-hidden="true"></i>
+                {% endif %}
+              </a>
+
+              
+
+              <!-- 
+                1. 메뉴명으로 매출액 검색하기 -> 메인 화면 오른쪽 상단의 돋보기 아이콘
+                -> 찾으실 메뉴가 무엇인가요? "짜장면" 이런식으로 입력을 받고
+                -> 검색을 누르면 해당 메뉴의 판매목록 검색(검색 SELECT) 폼 보여지도록 구현
+              -->
+              <form class="form-inline">
+                <button class="btn  my-2 my-sm-0 nav_search-btn menuSearch" type="button" >
+                  <i class="fa fa-search" aria-hidden="true"></i>
+                </button>
+              </form>
+               <!-- <a href="" class="order_online"> -->
+                {% if "user" in session : %}
+                <a href="/logout" class="order_online">
+                LogOut <!-- 세션에 맞게 로그인/로그아웃 버튼으로 보이도록 구현-->
+                </a>
+                {% else : %}
+                <a href="/login" class="order_online">
+                LogIn
+                </a> 
+                {% endif %}
+              </a>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+    <!-- end header section -->
+    {% block contents  %}  
+    {% endblock contents %}
+
+
+
+  </div>
+  
+  <!-- 블록 이름은 의미만 잘 전달되면 아무 이름이나 사용 가능 -->
+  {% block rendering_page %}
+  {% endblock rendering_page %}
+
+  <!-- footer section -->
+  <footer class="footer_section">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 footer-col">
+          <div class="footer_contact">
+            <h4>연락주실 곳</h4>
+            <div class="contact_link_box">
+              <a href="">
+                <i class="fa fa-map-marker" aria-hidden="true"></i>
+                <span> 대한민국 대전광역시 서구 XXX로 미래융합교육원</span>
+              </a>
+              <a href="">
+                <i class="fa fa-phone" aria-hidden="true"></i>
+                <span>연락처 : 042 123 1234</span>
+              </a>
+              <a href="">
+                <i class="fa fa-envelope" aria-hidden="true"></i>
+                <span>milaestudy@gmail.com</span>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 footer-col">
+          <h4>프로그램 제작자</h4>
+          <p>노현정 | 장보윤</p>
+          <p>황주미 | 안휘수</p>
+        </div>
+        <div class="col-md-4 footer-col">
+          <h4>영업시간</h4>
+          <p>월요일 ~ 금요일</p>
+          <p>09.00 Am -18.00 Pm</p>
+        </div>
+      </div>
+      
+    </div>
+  </footer>
+  <!-- footer section -->
+
+  <!-- 메뉴 검색을 위한 모달창  -->
+  <div class="modal" id="myModal">
+    <div class="custom-modal-overlay"></div> <!-- 흐림 배경 -->
+    <div class="modal-dialog" style="width: 100%; "> <!-- max-width: 800px;!important; min-width: 600px; -->
+      <div class="modal-content">
+
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">메뉴 검색</h4>
+          <button type="button" class="close">&times;</button>
+        </div>
+
+        <!-- Modal body -->
+        <div class="modal-body">
+          <i class="fa fa-search" id="searchicon">
+            <p>찾고 싶은 메뉴가 있으신가요?</p>
+          </i>
+          <input type="text" id="whatMenu" placeholder="검색할 메뉴를 입력해주세요" style="width: 100%;" ></input>
+        </div>
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" onclick="goToSearchMenu()">검색</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- jQery -->
+  <!-- <script src="js/jquery-3.4.1.min.js"></script> -->
+  <script src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
+  <!-- popper js -->
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
+  </script>
+  <!-- bootstrap js -->
+  <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
+  <!-- owl slider -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js">
+  </script>
+  <!-- isotope js -->
+  <script src="https://unpkg.com/isotope-layout@3.0.4/dist/isotope.pkgd.min.js"></script>
+  <!-- nice select -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/js/jquery.nice-select.min.js"></script>
+  <!-- custom js -->
+  <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+  <!-- Google Map -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap">
+  </script>
+  <!-- End Google Map -->
+  <!-- html 태그 다루기 위한  js -->
+  <script src="{{ url_for('static', filename='js/menu.js') }}"></script>
+
+  <script>
+    function openUserModal() {
+      document.getElementById("userModal").style.display = "block";
+    }
+
+    function closeUserModal() {
+      document.getElementById("userModal").style.display = "none";
+    }
+
+    function toggleStoreForm() {
+      const form = document.getElementById("storeForm");
+      // 로그인 여부 확인하고 가게명 수정/폐업 선택할 수 있도록
+      fetch("/get_user")
+      .then(res => res.json())
+      .then(data => {
+        if (data.user) { // true값이 들어오면 로그인 성공
+            form.hidden = !form.hidden;
+        } else {
+          alert("로그인이 필요합니다.");
+        }
+      });
+    }
+
+    function toggleForm() {
+      const action = document.getElementById("actionSelect").value;
+      document.getElementById("updateForm").style.display = action === "update" ? "block" : "none";
+      document.getElementById("deleteForm").style.display = action === "delete" ? "block" : "none";
+    }
+
+
+
+  </script>
+  {% if message %}
+  <script>
+    alert("{{ message }}");
+  </script>
+  {% endif %}
+
+</body>
+
+</html>

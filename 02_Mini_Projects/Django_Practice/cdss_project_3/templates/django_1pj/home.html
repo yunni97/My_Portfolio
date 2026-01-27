@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDSS 홈</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f0f2f5;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c5f7c 0%, #1a3d52 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .header-left h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .header-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .search-input {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+            width: 250px;
+            font-size: 14px;
+        }
+        
+        .logout-btn {
+            padding: 8px 20px;
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid white;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .logout-btn:hover {
+            background-color: rgba(255,255,255,0.3);
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 250px 1fr 350px;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+            min-height: calc(100vh - 70px);
+        }
+        
+        /* 좌측: 의사 프로필 */
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .doctor-profile {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .doctor-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            overflow: hidden;
+        }
+
+        .doctor-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .doctor-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        
+        .doctor-status {
+            display: inline-block;
+            padding: 5px 15px;
+            background-color: #d4edda;
+            color: #155724;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        
+        .doctor-info {
+            margin-top: 20px;
+            text-align: left;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 15px;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .info-icon {
+            font-size: 16px;
+        }
+
+        .status-select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #f0f0f0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            background-color: white;
+            transition: all 0.2s;
+        }
+
+        .status-select:hover {
+            border-color: #667eea;
+        }
+
+        .status-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .add-patient-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            transition: transform 0.2s;
+        }
+        
+        .add-patient-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .patient-list-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            flex: 1;
+        }
+        
+        .patient-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .patient-list-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .patient-count {
+            background-color: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .patient-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #f0f0f0;
+        }
+        
+        .patient-item:hover {
+            background-color: #f8f9ff;
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+        
+        .patient-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        .patient-info {
+            flex: 1;
+        }
+        
+        .patient-name {
+            font-weight: 600;
+            font-size: 15px;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .patient-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .patient-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .badge-high {
+            background-color: #fee;
+            color: #c33;
+        }
+        
+        .badge-medium {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .badge-low {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        /* 중앙: 환자 정보 */
+        .center-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        /* 우측: DDI 정보 */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .ddi-card {
+            background: #2c3e50;
+            border-radius: 12px;
+            padding: 25px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .ddi-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+        
+        .ddi-section {
+            margin-bottom: 25px;
+        }
+        
+        .ddi-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+        
+        .ddi-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 10px;
+            background-color: rgba(255,255,255,0.08);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ddi-item:hover {
+            background-color: rgba(255,255,255,0.15);
+            transform: translateX(3px);
+        }
+        
+        .ddi-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .dot-red {
+            background-color: #ff6b6b;
+        }
+        
+        .dot-yellow {
+            background-color: #ffd93d;
+        }
+        
+        .dot-green {
+            background-color: #6bcf7f;
+        }
+        
+        .ddi-text {
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        
+        .ddi-percent {
+            margin-left: auto;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        
+        .action-plan {
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .action-plan-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .action-list {
+            list-style: none;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+        
+        .action-list li:before {
+            content: "• ";
+            margin-right: 8px;
+        }
+        
+        .no-patients {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .no-patients-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        /* DDI 팝업 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 8% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close {
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            transition: transform 0.2s;
+        }
+
+        .close:hover {
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .modal-section {
+            margin-bottom: 20px;
+        }
+
+        .modal-section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .modal-section-content {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .modal-section-content ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .modal-section-content li {
+            margin-bottom: 6px;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .risk-high {
+            background-color: #fee;
+            color: #c33;
+        }
+
+        .risk-medium {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .risk-low {
+            background-color: #d4edda;
+            color: #155724;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <h1>🏥 Clinical Decision Support System</h1>
+        </div>
+        <div class="header-right">
+            <form method="get" action="{% url 'home' %}" style="display: inline;">
+                <input type="text" name="search" class="search-input" placeholder="🔍 Search Patient" value="{{ search_query }}">
+            </form>
+            <a href="{% url 'doctor_logout' %}" class="logout-btn">로그아웃</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- 좌측: 의사 프로필 -->
+        <div class="left-panel">
+            <div class="doctor-profile">
+                <div class="doctor-avatar">
+                    {% if doctor.profile_image %}
+                        <img src="{{ doctor.profile_image.url }}" alt="{{ doctor.doctor_name }}">
+                    {% else %}
+                        👨‍⚕️
+                    {% endif %}
+                </div>
+                <div class="doctor-name">{{ doctor.doctor_name }}</div>
+
+                <!-- 상태 변경 폼 -->
+                <form method="post" action="{% url 'doctor_status_change' %}" style="margin: 15px 0;">
+                    {% csrf_token %}
+                    <select name="status" onchange="this.form.submit()" class="status-select">
+                        <option value="진료중" {% if doctor.doctor_status == '진료중' %}selected{% endif %}>🟢 진료중</option>
+                        <option value="진료외" {% if doctor.doctor_status == '진료외' %}selected{% endif %}>🟡 진료외</option>
+                        <option value="휴무" {% if doctor.doctor_status == '휴무' %}selected{% endif %}>🔴 휴무</option>
+                    </select>
+                </form>
+
+                <div class="doctor-info">
+                    <div class="info-item">
+                        <span class="info-icon">🆔</span>
+                        <span>{{ doctor.doctor_id }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">📧</span>
+                        <span>{{ doctor.doctor_email|default:"이메일 없음" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">📞</span>
+                        <span>{{ doctor.doctor_phone|default:"전화번호 없음" }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="add-patient-btn" onclick="location.href='{% url 'patient_add' %}'">
+                ➕ Add New Patient
+            </button>
+        </div>
+        
+        <!-- 중앙: 환자 목록 -->
+        <div class="center-panel">
+            <div class="patient-list-card">
+                <div class="patient-list-header">
+                    <div class="patient-list-title">Patient List</div>
+                    <div class="patient-count">{{ patients.count }}명</div>
+                </div>
+                
+                {% if patients %}
+                    {% for patient in patients %}
+                    <div class="patient-item" onclick="location.href='{% url 'patient_detail' patient.patient_id %}'">
+                        <div class="patient-avatar">👤</div>
+                        <div class="patient-info">
+                            <div class="patient-name">{{ patient.name }}</div>
+                            <div class="patient-meta">
+                                <span>{{ patient.patient_id }}</span>
+                                <span>{{ patient.gender|default:"-" }}</span>
+                                <span>
+                                    {% if patient.recurrence_risk == 'high' %}
+                                        <span class="patient-badge badge-high">고위험</span>
+                                    {% elif patient.recurrence_risk == 'medium' %}
+                                        <span class="patient-badge badge-medium">중위험</span>
+                                    {% elif patient.recurrence_risk == 'low' %}
+                                        <span class="patient-badge badge-low">저위험</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-patients">
+                        <div class="no-patients-icon">📋</div>
+                        <p>등록된 환자가 없습니다.</p>
+                        <p style="font-size: 13px; margin-top: 10px; color: #999;">새 환자를 추가해주세요.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- 우측: DDI 정보 -->
+        <div class="right-panel">
+            <div class="ddi-card">
+                <div class="ddi-title">
+                    Predicted Side Effects For This Patient<br>
+                    With [약물명] Treatment
+                </div>
+                
+                <div class="ddi-section">
+                    <div class="ddi-section-title">High Risk (> 50%)</div>
+                    <div class="ddi-item" onclick="showDDIDetail('fatigue', 'high', 53)">
+                        <div class="ddi-dot dot-red"></div>
+                        <div class="ddi-text">Fatigue</div>
+                        <div class="ddi-percent">53%</div>
+                    </div>
+                    <div class="ddi-item" onclick="showDDIDetail('appetite', 'high', 53)">
+                        <div class="ddi-dot dot-red"></div>
+                        <div class="ddi-text">Loss & Appetite</div>
+                        <div class="ddi-percent">53%</div>
+                    </div>
+                </div>
+
+                <div class="ddi-section">
+                    <div class="ddi-section-title">중위험 (20-50%)</div>
+                    <div class="ddi-item" onclick="showDDIDetail('diarrhea', 'medium', 53)">
+                        <div class="ddi-dot dot-yellow"></div>
+                        <div class="ddi-text">Diarrhea</div>
+                        <div class="ddi-percent">53%</div>
+                    </div>
+                    <div class="ddi-item" onclick="showDDIDetail('hyponatremia', 'medium', 42)">
+                        <div class="ddi-dot dot-yellow"></div>
+                        <div class="ddi-text">Hyponatremia</div>
+                        <div class="ddi-percent">42%</div>
+                    </div>
+                    <div class="ddi-item" onclick="showDDIDetail('proteinuria', 'medium', 42)">
+                        <div class="ddi-dot dot-yellow"></div>
+                        <div class="ddi-text">Proteinuria</div>
+                        <div class="ddi-percent">42%</div>
+                    </div>
+                </div>
+
+                <div class="ddi-section">
+                    <div class="ddi-section-title">저위험 (< 20%)</div>
+                    <div class="ddi-item" onclick="showDDIDetail('weight_loss', 'low', 11)">
+                        <div class="ddi-dot dot-green"></div>
+                        <div class="ddi-text">Weight Loss</div>
+                        <div class="ddi-percent">11%</div>
+                    </div>
+                    <div class="ddi-item" onclick="showDDIDetail('hemorrhage', 'low', 11)">
+                        <div class="ddi-dot dot-green"></div>
+                        <div class="ddi-text">Hemorrhage</div>
+                        <div class="ddi-percent">11%</div>
+                    </div>
+                </div>
+                
+                <div class="action-plan">
+                    <div class="action-plan-title">Action Plan →</div>
+                    <div style="font-size: 13px; margin-bottom: 15px; opacity: 0.9;">
+                        Prognosis Management (Future Support)
+                    </div>
+                    <ul class="action-list">
+                        <li>Time-series follow-up data</li>
+                        <li>AI Model Design</li>
+                        <li>Model 1: Prognosis Type Prediction</li>
+                        <li>Model 2: Prognosis Test Prediction</li>
+                        <li>Response Timeseries Prediction</li>
+                        <li>Regional Outlood Socioeconomic</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DDI 상세 정보 팝업 모달 -->
+    <div id="ddiModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalDDITitle">부작용 상세 정보</h2>
+                <span class="close" onclick="closeDDIModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="modalDDIBody">
+                <!-- JavaScript로 동적으로 내용 삽입 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DDI 상세 정보 데이터 (샘플)
+        const ddiDetails = {
+            'fatigue': {
+                name: '피로감 (Fatigue)',
+                description: '항암 치료 중 가장 흔하게 나타나는 부작용으로, 일반적인 피로와 달리 휴식으로도 쉽게 회복되지 않는 지속적인 탈진 상태입니다.',
+                symptoms: ['전신 쇠약감', '지속적인 무기력', '집중력 저하', '수면 장애'],
+                management: ['충분한 수면과 휴식', '가벼운 운동 (산책 등)', '균형잡힌 영양 섭취', '스트레스 관리'],
+                monitoring: ['일일 피로도 기록', '수면 패턴 관찰', '활동량 체크']
+            },
+            'appetite': {
+                name: '식욕 감소 (Loss of Appetite)',
+                description: '항암제로 인해 식욕이 감소하고 음식 섭취량이 줄어드는 현상입니다. 영양 상태 악화로 이어질 수 있어 주의가 필요합니다.',
+                symptoms: ['음식에 대한 흥미 상실', '소량 섭취 후 포만감', '체중 감소', '미각 변화'],
+                management: ['소량씩 자주 섭취', '고칼로리·고단백 식품 선택', '식사 환경 개선', '영양 보충제 고려'],
+                monitoring: ['주간 체중 측정', '1일 섭취량 기록', '알부민 수치 확인']
+            },
+            'diarrhea': {
+                name: '설사 (Diarrhea)',
+                description: '장 점막의 손상이나 약물의 직접적인 영향으로 인해 발생하는 잦은 묽은 변입니다.',
+                symptoms: ['하루 3회 이상의 묽은 변', '복통', '탈수 증상', '전해질 불균형'],
+                management: ['수분 섭취 증가 (이온 음료)', '저섬유질 식이', '유제품 제한', '지사제 복용 (의사 상담 후)'],
+                monitoring: ['배변 횟수 및 양상 기록', '탈수 증상 관찰', '전해질 검사']
+            },
+            'hyponatremia': {
+                name: '저나트륨혈증 (Hyponatremia)',
+                description: '혈액 내 나트륨 농도가 정상보다 낮아진 상태로, 증상이 없을 수도 있지만 심한 경우 신경학적 문제를 유발할 수 있습니다.',
+                symptoms: ['두통', '오심/구토', '피로', '근육 경련', '의식 변화(중증)'],
+                management: ['원인에 따른 치료', '수분 섭취 조절', '나트륨 보충 (의사 지시 하)', '약물 조정'],
+                monitoring: ['정기적인 전해질 검사', '혈청 나트륨 수치 확인', '신경학적 증상 관찰']
+            },
+            'proteinuria': {
+                name: '단백뇨 (Proteinuria)',
+                description: '소변에서 정상보다 많은 단백질이 배출되는 상태로, 신장 손상의 지표가 될 수 있습니다.',
+                symptoms: ['거품뇨', '부종 (특히 발목, 얼굴)', '체중 증가', '피로'],
+                management: ['혈압 조절', '저염식', '단백질 섭취 조절', '약물 용량 조절'],
+                monitoring: ['정기적인 소변 검사', '24시간 소변 단백 측정', '신기능 검사 (크레아티닌, eGFR)']
+            },
+            'weight_loss': {
+                name: '체중 감소 (Weight Loss)',
+                description: '의도하지 않은 체중 감소로, 종양 자체나 치료의 부작용으로 발생할 수 있습니다.',
+                symptoms: ['지속적인 체중 감소', '근육량 감소', '전반적인 쇠약감'],
+                management: ['고칼로리 식사', '단백질 보충', '운동 (근력 운동)', '영양 상담'],
+                monitoring: ['주 2회 체중 측정', '체성분 분석', '영양 상태 평가']
+            },
+            'hemorrhage': {
+                name: '출혈 (Hemorrhage)',
+                description: '항암제로 인한 혈소판 감소나 혈관 손상으로 인해 출혈이 발생할 수 있습니다.',
+                symptoms: ['잇몸 출혈', '코피', '피부 멍', '혈뇨/혈변'],
+                management: ['외상 주의', '부드러운 칫솔 사용', '혈소판 수혈 (필요시)', '지혈제 사용'],
+                monitoring: ['혈소판 수치 확인', '출혈 부위 관찰', '빈혈 검사']
+            }
+        };
+
+        function showDDIDetail(sideEffect, riskLevel, probability) {
+            const detail = ddiDetails[sideEffect];
+            if (!detail) return;
+
+            document.getElementById('modalDDITitle').textContent = detail.name;
+
+            const riskClass = riskLevel === 'high' ? 'risk-high' : (riskLevel === 'medium' ? 'risk-medium' : 'risk-low');
+            const riskText = riskLevel === 'high' ? '고위험' : (riskLevel === 'medium' ? '중위험' : '저위험');
+
+            const bodyHtml = `
+                <div style="margin-bottom: 20px;">
+                    <span class="risk-badge ${riskClass}">${riskText} - 발생 확률 ${probability}%</span>
+                </div>
+
+                <div class="modal-section">
+                    <div class="modal-section-title">설명</div>
+                    <div class="modal-section-content">${detail.description}</div>
+                </div>
+
+                <div class="modal-section">
+                    <div class="modal-section-title">주요 증상</div>
+                    <div class="modal-section-content">
+                        <ul>
+                            ${detail.symptoms.map(s => `<li>${s}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <div class="modal-section-title">관리 방법</div>
+                    <div class="modal-section-content">
+                        <ul>
+                            ${detail.management.map(m => `<li>${m}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <div class="modal-section-title">모니터링 항목</div>
+                    <div class="modal-section-content">
+                        <ul>
+                            ${detail.monitoring.map(m => `<li>${m}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('modalDDIBody').innerHTML = bodyHtml;
+            document.getElementById('ddiModal').style.display = 'block';
+        }
+
+        function closeDDIModal() {
+            document.getElementById('ddiModal').style.display = 'none';
+        }
+
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            const modal = document.getElementById('ddiModal');
+            if (event.target == modal) {
+                closeDDIModal();
+            }
+        }
+    </script>
+</body>
+</html>

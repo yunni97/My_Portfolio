@@ -1,0 +1,88 @@
+{% extends 'liverguard/base.html' %}
+
+{% block title %}{{ drug.name_kr|truncatechars:30 }} - 약물 상세{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-md-6">
+        <h2><i class="bi bi-capsule"></i> 약물 상세 정보</h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="{% url 'liverguard:drug_list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> 목록으로
+        </a>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">기본 정보</h5>
+    </div>
+    <div class="card-body">
+        <p><strong>약물 ID:</strong> {{ drug.drug_id }}</p>
+        <p><strong>한글명:</strong> {{ drug.name_kr }}</p>
+        <p><strong>영문명:</strong> {{ drug.name_eng }}</p>
+        <p><strong>분류:</strong> <span class="badge bg-info">{{ drug.drug_category }}</span></p>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0">효능/효과</h5>
+    </div>
+    <div class="card-body">
+        <p>{{ drug.efficacy|linebreaksbr }}</p>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0">용법/용량</h5>
+    </div>
+    <div class="card-body">
+        <p>{{ drug.dosage|linebreaksbr }}</p>
+        {% if drug.instructions %}
+        <hr>
+        <h6>복약 지침:</h6>
+        <p>{{ drug.instructions|linebreaksbr }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0">주의사항</h5>
+    </div>
+    <div class="card-body">
+        <h6>일반 주의사항:</h6>
+        <p>{{ drug.precautions|linebreaksbr }}</p>
+        <hr>
+        <h6>금기사항:</h6>
+        <p class="text-danger">{{ drug.contraindications|linebreaksbr }}</p>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header bg-danger text-white">
+        <h5 class="mb-0">부작용</h5>
+    </div>
+    <div class="card-body">
+        <h6>흔한 부작용:</h6>
+        <p>{{ drug.common_side_effects|linebreaksbr }}</p>
+        <hr>
+        <h6>심각한 부작용:</h6>
+        <p class="text-danger">{{ drug.serious_side_effects|linebreaksbr }}</p>
+    </div>
+</div>
+
+{% if drug.smiles %}
+<div class="card mb-3">
+    <div class="card-header bg-secondary text-white">
+        <h5 class="mb-0">분자 구조</h5>
+    </div>
+    <div class="card-body">
+        <p><strong>SMILES:</strong> <code>{{ drug.smiles }}</code></p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

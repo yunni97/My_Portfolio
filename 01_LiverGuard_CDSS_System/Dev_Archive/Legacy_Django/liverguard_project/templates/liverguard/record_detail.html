@@ -1,0 +1,201 @@
+{% extends 'liverguard/base.html' %}
+
+{% block title %}진료기록 상세 - LiverGuard AI{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-md-6">
+        <h2><i class="bi bi-file-medical"></i> 진료기록 상세</h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="{% url 'liverguard:record_list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> 목록으로
+        </a>
+    </div>
+</div>
+
+<!-- 기본 정보 -->
+<div class="card mb-3">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">기본 정보</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>환자명:</strong> <a href="{% url 'liverguard:patient_detail' record.patient.patient_id %}">{{ record.patient.name }}</a></p>
+                <p><strong>진료일:</strong> {{ record.visit_date|date:"Y-m-d H:i" }}</p>
+                <p><strong>주증상:</strong> {{ record.chief_complatint|default:"없음" }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>담당의사:</strong> {{ record.doctor_id }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SOAP 노트 -->
+<div class="card mb-3">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0">SOAP 노트</h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <h6><strong>S (Subjective - 환자 진술):</strong></h6>
+            <p>{{ record.subjective_note|default:"기록 없음"|linebreaksbr }}</p>
+        </div>
+        <div class="mb-3">
+            <h6><strong>O (Objective - 의사 관찰):</strong></h6>
+            <p>{{ record.objective_note|default:"기록 없음"|linebreaksbr }}</p>
+        </div>
+        <div class="mb-3">
+            <h6><strong>A (Assessment - 진단 소견):</strong></h6>
+            <p>{{ record.assessment|default:"기록 없음"|linebreaksbr }}</p>
+        </div>
+        <div class="mb-3">
+            <h6><strong>P (Plan - 치료 계획):</strong></h6>
+            <p>{{ record.plan|default:"기록 없음"|linebreaksbr }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- 바이탈 사인 -->
+{% if vitals %}
+<div class="card mb-3">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0"><i class="bi bi-heart-pulse"></i> 바이탈 사인</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <p><strong>신장:</strong> {{ vitals.height|default:"-" }} cm</p>
+                <p><strong>체중:</strong> {{ vitals.weight|default:"-" }} kg</p>
+            </div>
+            <div class="col-md-3">
+                <p><strong>혈압:</strong> {{ vitals.bp_systolic|default:"-" }}/{{ vitals.bp_diastolic|default:"-" }} mmHg</p>
+                <p><strong>심박수:</strong> {{ vitals.heart_rate|default:"-" }} bpm</p>
+            </div>
+            <div class="col-md-3">
+                <p><strong>호흡수:</strong> {{ vitals.resp_rate|default:"-" }} 회/분</p>
+                <p><strong>체온:</strong> {{ vitals.temperature|default:"-" }} ℃</p>
+            </div>
+            <div class="col-md-3">
+                <p><strong>산소포화도:</strong> {{ vitals.oxygen_saturation|default:"-" }} %</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- 혈액검사 결과 -->
+{% if blood %}
+<div class="card mb-3">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0"><i class="bi bi-droplet"></i> 혈액검사 결과</h5>
+    </div>
+    <div class="card-body">
+        <p><strong>채혈 시각:</strong> {{ blood.taken_at|date:"Y-m-d H:i" }}</p>
+        <div class="row">
+            <div class="col-md-3">
+                <p><strong>AST:</strong> {{ blood.ast|default:"-" }} U/L</p>
+                <p><strong>ALT:</strong> {{ blood.alt|default:"-" }} U/L</p>
+                <p><strong>ALP:</strong> {{ blood.alp|default:"-" }} U/L</p>
+            </div>
+            <div class="col-md-3">
+                <p><strong>GGT:</strong> {{ blood.ggt|default:"-" }} U/L</p>
+                <p><strong>Bilirubin:</strong> {{ blood.bilirubin|default:"-" }} mg/dL</p>
+                <p><strong>Albumin:</strong> {{ blood.albumin|default:"-" }} g/dL</p>
+            </div>
+            <div class="col-md-3">
+                <p><strong>INR:</strong> {{ blood.inr|default:"-" }}</p>
+                <p><strong>Platelet:</strong> {{ blood.platelet|default:"-" }} x10^3/uL</p>
+            </div>
+            <div class="col-md-3">
+                <p><strong>AFP:</strong> {{ blood.afp|default:"-" }} ng/mL</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- 처방 -->
+{% if prescriptions %}
+<div class="card mb-3">
+    <div class="card-header bg-secondary text-white">
+        <h5 class="mb-0"><i class="bi bi-prescription2"></i> 처방</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>약물명</th>
+                        <th>용량</th>
+                        <th>복용기간</th>
+                        <th>상태</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prescription in prescriptions %}
+                    <tr>
+                        <td>{{ prescription.medication_name }}</td>
+                        <td>{{ prescription.dosage }}</td>
+                        <td>{{ prescription.duration }}</td>
+                        <td>
+                            {% if prescription.status == 'active' %}
+                                <span class="badge bg-success">진행중</span>
+                            {% elif prescription.status == 'expired' %}
+                                <span class="badge bg-secondary">만료</span>
+                            {% else %}
+                                <span class="badge bg-danger">취소</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- 영상검사 -->
+{% if studies %}
+<div class="card mb-3">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0"><i class="bi bi-camera"></i> 영상검사</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>검사 방식</th>
+                        <th>검사 부위</th>
+                        <th>검사일</th>
+                        <th>설명</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for study in studies %}
+                    <tr>
+                        <td>
+                            {% if study.modality == 'ct' %}
+                                <span class="badge bg-info">CT</span>
+                            {% elif study.modality == 'mri' %}
+                                <span class="badge bg-primary">MRI</span>
+                            {% else %}
+                                <span class="badge bg-secondary">US</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ study.body_part }}</td>
+                        <td>{{ study.study_date|date:"Y-m-d H:i" }}</td>
+                        <td>{{ study.description|default:"-" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

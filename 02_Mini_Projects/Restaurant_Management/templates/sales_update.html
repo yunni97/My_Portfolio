@@ -1,0 +1,37 @@
+{% set body_class = "sub_page" %}
+{% extends "index.html" %}
+{% block rendering_page %}
+<section class="book_section layout_padding">
+  <div class="container">
+    <div class="heading_container">
+      <h2>판매수량 수정</h2>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form_container">  
+
+              <form action="/sales_update" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="menuname" value="{{ menuname }}">
+                
+                <div>
+                  <input type="text" name="storename" class="form-control"  value="메뉴명 : {{ menuname }}" disabled />
+                </div>
+                <div>
+                  <input type="text" name="price" class="form-control"  value="가격 : {{ price }}" disabled />
+                </div>
+                
+                <div>
+                  <h5>수정할 판매수량을 입력후 저장해주세요.</h5>
+                  <input type="number" name="amount" class="form-control" placeholder="현재 판매수량 : {{ amount }}"/>
+                  <!-- <input type="number" name="amount" value="{{ amount }}" required style="margin-left: 0.5rem;"> --> 
+                </div>
+                <div class="user_option" style="display: flex; justify-content: flex-end;">
+                  <button type="submit" class="update_btn">저장</button>
+                </div>
+              </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

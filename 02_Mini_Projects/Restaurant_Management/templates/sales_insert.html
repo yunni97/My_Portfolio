@@ -1,0 +1,39 @@
+{% set body_class = "sub_page" %}
+{% extends "index.html" %}
+
+{% block rendering_page %}
+<section class="book_section layout_padding">
+  <div class="container">
+    <div class="heading_container">
+      <h2>
+        신규 매출 등록
+      </h2>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form_container">  
+            <form action="/sales_insert" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div>
+                    <input type="text" name="storename" class="form-control"  value="{{ storename }}" disabled />
+                </div>
+                <div>
+                    <input type="text" name="menuname" class="form-control" placeholder="메뉴명" required /> <!-- placeholder 는 input 태그에 회색글씨로 보여지는 힌트같은 애-->
+                </div>
+                <div>
+                    <input type="number" name="price" class="form-control" placeholder="가격" required />
+                </div>
+                <div>
+                    <input type="number" name="amount" class="form-control" placeholder="판매수량" required />
+                </div>
+                <div class = "btn_box">
+                    <button type="submit"> 매출등록</button>
+                </div>
+            </form>
+            </div>
+        </div>
+    </div>
+
+  </div>
+</section>
+{% endblock rendering_page%}

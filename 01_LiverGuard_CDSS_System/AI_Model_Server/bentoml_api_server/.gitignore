@@ -1,0 +1,46 @@
+# 파이썬 컴파일 파일 무시
+__pycache__/
+*.py[cod]
+
+# 로그 파일 무시
+*.log
+
+# 데이터 파일 무시 (의료 영상 등 큰 파일)
+*.nii
+*.nii.gz
+*.dcm
+*.mhd
+*.raw
+
+# BentoML 로컬 저장소 (혹시 있다면)
+bentoml/models/
+bentoml/bento/
+
+# OS 자동 생성 파일
+.DS_Store
+
+
+# === [👇 여기부터 추가하세요] ===
+
+# 1. Django 미디어 파일 (환자 데이터 보호)
+# (프로젝트 루트 기준 media 폴더 무시)
+media/
+*/media/
+static/  # (collectstatic으로 모이는 곳이라면 무시)
+
+# 2. BentoML & nnU-Net 대용량 모델 (깃허브 용량 제한 방지)
+# 폴더 이름이 정확해야 합니다. 아까 봤던 구조 기준입니다.
+**/nnUNet_raw/
+**/nnUNet_preprocessed/
+**/nnUNet_results/
+bentoml_api_server/nnUNet_results/
+
+# 3. 환경 설정 및 가상환경
+.env
+.venv/
+venv/
+ENV/
+
+# 4. IDE 설정 파일 (팀원끼리 설정 충돌 방지)
+.vscode/
+.idea/

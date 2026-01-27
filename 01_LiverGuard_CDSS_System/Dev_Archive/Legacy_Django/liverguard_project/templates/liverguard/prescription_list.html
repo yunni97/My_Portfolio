@@ -1,0 +1,56 @@
+{% extends 'liverguard/base.html' %}
+
+{% block title %}처방 목록 - LiverGuard AI{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-md-6">
+        <h2><i class="bi bi-prescription2"></i> 처방 목록</h2>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>처방 ID</th>
+                        <th>환자명</th>
+                        <th>약물명</th>
+                        <th>용량</th>
+                        <th>복용기간</th>
+                        <th>상태</th>
+                        <th>처방일</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prescription in prescriptions %}
+                    <tr>
+                        <td>{{ prescription.prescription_id }}</td>
+                        <td>{{ prescription.record.patient.name }}</td>
+                        <td>{{ prescription.medication_name }}</td>
+                        <td>{{ prescription.dosage }}</td>
+                        <td>{{ prescription.duration }}</td>
+                        <td>
+                            {% if prescription.status == 'active' %}
+                                <span class="badge bg-success">진행중</span>
+                            {% elif prescription.status == 'expired' %}
+                                <span class="badge bg-secondary">만료</span>
+                            {% else %}
+                                <span class="badge bg-danger">취소</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ prescription.created_at|date:"Y-m-d" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">처방 기록이 없습니다.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

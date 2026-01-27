@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(python manage.py makemigrations:*)",
+      "Bash(python manage.py showmigrations:*)",
+      "Bash(python manage.py dbshell:*)",
+      "Bash(python check_table.py:*)",
+      "Bash(python manage.py migrate:*)",
+      "Bash(python manage.py shell:*)",
+      "Bash(python:*)",
+      "Bash(timeout 120 python:*)",
+      "Bash(cat:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

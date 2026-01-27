@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>환자 상세 정보</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left h1 {
+            font-size: 24px;
+        }
+        
+        .header-right {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 8px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .btn-outline {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid white;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+        
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .profile-card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+        }
+        
+        .profile-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .profile-id {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .patient-menu {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .menu-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .menu-item.active {
+            background-color: #f0f4ff;
+            border-left-color: #667eea;
+            font-weight: 500;
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .form-group label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #666;
+            border: 1px solid #ddd;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <h1>🏥 간암 예후관리 CDSS</h1>
+        </div>
+        <div class="header-right">
+            <a href="{% url 'home' %}" class="btn btn-outline">← 환자 목록</a>
+            <a href="{% url 'logout' %}" class="btn btn-outline">로그아웃</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <div class="profile-card">
+                <div class="profile-avatar">👤</div>
+                <div class="profile-name">{% if patient %}{{ patient.name }}{% else %}새 환자{% endif %}</div>
+                <div class="profile-id">{% if patient %}{{ patient.patient_id }}{% else %}환자 추가 중{% endif %}</div>
+            </div>
+
+            <div class="patient-menu">
+                <div class="menu-item active">기본 정보</div>
+                <div class="menu-item">진단 정보</div>
+                <div class="menu-item">치료 정보</div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="section-title">환자 기본 정보</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>환자번호</label>
+                        <input type="text" name="patient_id" value="{% if patient %}{{ patient.patient_id }}{% endif %}" {% if patient %}readonly style="background-color: #f5f5f5;"{% else %}required{% endif %}>
+                    </div>
+
+                    <div class="form-group">
+                        <label>이름</label>
+                        <input type="text" name="name" value="{% if patient %}{{ patient.name }}{% endif %}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>생년월일</label>
+                        <input type="date" name="birth_date" value="{% if patient %}{{ patient.birth_date|date:'Y-m-d' }}{% endif %}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>성별</label>
+                        <select name="gender" required>
+                            <option value="M" {% if patient and patient.gender == 'M' %}selected{% endif %}>남성</option>
+                            <option value="F" {% if patient and patient.gender == 'F' %}selected{% endif %}>여성</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>전화번호</label>
+                        <input type="text" name="phone" value="{% if patient %}{{ patient.phone }}{% endif %}" placeholder="010-1234-5678">
+                    </div>
+                </div>
+                
+                <div class="section-title">진단 정보</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>진단일</label>
+                        <input type="date" name="diagnosis_date" value="{% if patient and patient.diagnosis_date %}{{ patient.diagnosis_date|date:'Y-m-d' }}{% endif %}">
+                    </div>
+
+                    <div class="form-group">
+                        <label>BCLC 병기</label>
+                        <select name="bclc_stage">
+                            <option value="">선택</option>
+                            <option value="0" {% if patient and patient.bclc_stage == '0' %}selected{% endif %}>Stage 0 (Very early)</option>
+                            <option value="A" {% if patient and patient.bclc_stage == 'A' %}selected{% endif %}>Stage A (Early)</option>
+                            <option value="B" {% if patient and patient.bclc_stage == 'B' %}selected{% endif %}>Stage B (Intermediate)</option>
+                            <option value="C" {% if patient and patient.bclc_stage == 'C' %}selected{% endif %}>Stage C (Advanced)</option>
+                            <option value="D" {% if patient and patient.bclc_stage == 'D' %}selected{% endif %}>Stage D (Terminal)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>종양 크기 (cm)</label>
+                        <input type="number" step="0.1" name="tumor_size" value="{% if patient %}{{ patient.tumor_size|default:'' }}{% endif %}" placeholder="예: 3.5">
+                    </div>
+
+                    <div class="form-group">
+                        <label>종양 개수</label>
+                        <input type="number" name="tumor_count" value="{% if patient %}{{ patient.tumor_count|default:'' }}{% endif %}" placeholder="예: 1">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Child-Pugh 등급</label>
+                        <select name="child_pugh">
+                            <option value="">선택</option>
+                            <option value="A" {% if patient and patient.child_pugh == 'A' %}selected{% endif %}>A</option>
+                            <option value="B" {% if patient and patient.child_pugh == 'B' %}selected{% endif %}>B</option>
+                            <option value="C" {% if patient and patient.child_pugh == 'C' %}selected{% endif %}>C</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" name="vascular_invasion" {% if patient and patient.vascular_invasion %}checked{% endif %}>
+                        <label>혈관침범 있음</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label>초기 AFP (ng/mL)</label>
+                        <input type="number" step="0.1" name="afp_initial" value="{% if patient %}{{ patient.afp_initial|default:'' }}{% endif %}" placeholder="예: 250.5">
+                    </div>
+
+                    <div class="form-group">
+                        <label>최근 AFP (ng/mL)</label>
+                        <input type="number" step="0.1" name="afp_current" value="{% if patient %}{{ patient.afp_current|default:'' }}{% endif %}" placeholder="예: 180.0">
+                    </div>
+                </div>
+                
+                <div class="section-title">치료 정보</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>치료 방식</label>
+                        <select name="treatment_type">
+                            <option value="">선택</option>
+                            <option value="surgery" {% if patient and patient.treatment_type == 'surgery' %}selected{% endif %}>수술적 절제</option>
+                            <option value="transplant" {% if patient and patient.treatment_type == 'transplant' %}selected{% endif %}>간이식</option>
+                            <option value="tace" {% if patient and patient.treatment_type == 'tace' %}selected{% endif %}>TACE</option>
+                            <option value="sorafenib" {% if patient and patient.treatment_type == 'sorafenib' %}selected{% endif %}>소라페닙</option>
+                            <option value="lenvatinib" {% if patient and patient.treatment_type == 'lenvatinib' %}selected{% endif %}>렌바티닙</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>치료 시작일</label>
+                        <input type="date" name="treatment_start_date" value="{% if patient and patient.treatment_start_date %}{{ patient.treatment_start_date|date:'Y-m-d' }}{% endif %}">
+                    </div>
+
+                    <div class="form-group">
+                        <label>재발 위험도</label>
+                        <select name="recurrence_risk">
+                            <option value="">선택</option>
+                            <option value="low" {% if patient and patient.recurrence_risk == 'low' %}selected{% endif %}>저위험</option>
+                            <option value="medium" {% if patient and patient.recurrence_risk == 'medium' %}selected{% endif %}>중위험</option>
+                            <option value="high" {% if patient and patient.recurrence_risk == 'high' %}selected{% endif %}>고위험</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>다음 CT 검사일</label>
+                        <input type="date" name="next_ct_date" value="{% if patient and patient.next_ct_date %}{{ patient.next_ct_date|date:'Y-m-d' }}{% endif %}">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>다음 혈액검사일</label>
+                        <input type="date" name="next_blood_test_date" value="{% if patient and patient.next_blood_test_date %}{{ patient.next_blood_test_date|date:'Y-m-d' }}{% endif %}">
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    {% if patient %}
+                    <button type="button" class="btn-danger" onclick="if(confirm('정말 삭제하시겠습니까?')) { document.getElementById('delete-form').submit(); }">삭제</button>
+                    {% endif %}
+                    <button type="button" class="btn-secondary" onclick="location.href='{% url 'home' %}'">취소</button>
+                    <button type="submit" class="btn-primary">{% if patient %}저장{% else %}추가{% endif %}</button>
+                </div>
+            </form>
+
+            {% if patient %}
+            <form id="delete-form" method="post" action="{% url 'patient_delete' patient.patient_id %}" style="display: none;">
+                {% csrf_token %}
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

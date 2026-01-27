@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # [1] Django (서비스 이름을 django_server로 변경)
+  django_server:
+    # 👈 여기를 'backend'에서 'django_server'로 고쳤습니다!
+    build: .
+    container_name: django_server
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+      - ./config/media:/app/config/media # 👈 [중요] 경로를 /app/media로 통일 (settings.py와 일치)
+    depends_on:
+      - mysql_db
+      - bentoml_server
+      - orthanc_pacs
+
+  # [2] AI Server (BentoML)
+  bentoml_server:
+    build:
+      context: ../bentoml_api_server
+      dockerfile: Dockerfile
+    container_name: bentoml_server
+    depends_on:
+      orthanc_pacs:
+        condition: service_started
+    # ⚠️ command: 이 부분을 추가하여 15초 대기 후 서버를 시작합니다.
+    command: /bin/bash -c "sleep 15 && bentoml serve service:NNUNetService --host 0.0.0.0 --port 3000 --reload"
+    ports:
+      - "3000:3000"
+    environment:
+      - nnUNet_raw=/app/nnUNet_raw
+      - nnUNet_preprocessed=/app/nnUNet_preprocessed
+      - nnUNet_results=/app/nnUNet_results
+    volumes:
+      - ./config/media:/app/media
+      - ../bentoml_api_server:/app # 👈 [NEW] 내 컴퓨터의 코드를 컨테이너 안에 실시간 연결!
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+
+  # [3] Orthanc (PACS)
+  orthanc_pacs:
+    image: jodogne/orthanc-plugins
+    container_name: orthanc_pacs
+    ports:
+      - "8042:8042"
+      - "4242:4242"
+    environment:
+      ORTHANC_NAME: "MY_ORTHANC"
+    volumes:
+      - orthanc_storage:/var/lib/orthanc/db
+  # [4] DB
+  mysql_db:
+    image: mysql:8.0
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: liver_project
+    ports:
+      - "3306:3306"
+
+volumes:
+  orthanc_storage:
