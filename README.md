@@ -44,7 +44,7 @@
 ## Contact
 
 - Email: boyun9397@gmail.com
-- LinkedIn: https://www.notion.so/Boyun-s-Portfolio-23aa8f9ce1d380a19fb9d6bd38db35a4?source=copy_link
+- LinkedIn: https://www.notion.so/Boyun-s-Portfolio-23aa8f9ce1d380a19fb9d6bd38db35a4
 
 ---
 
