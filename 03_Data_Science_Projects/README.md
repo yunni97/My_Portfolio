@@ -60,7 +60,7 @@ python run_DeepDDI.py --input_file [약물쌍파일]
 │       │   ├── Severity.py       # 심각도 분석
 │       │   └── preprocessing.py
 │       ├── data/                 # 약물 데이터
-│       └── run_DeepDDI.py        # 실행 스크립트
+└──     └── run_DeepDDI.py        # 실행 스크립트
 
 ```
 
