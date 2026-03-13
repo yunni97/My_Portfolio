@@ -26,7 +26,7 @@ R 언어를 활용한 회귀 분석 프로젝트입니다.
 
 ---
 
-### 3. Drug-Drug Interaction (DDI)
+### 3. Deep Learning Projects
 
 **DeepDDI** - 딥러닝을 활용한 약물 상호작용 예측 연구입니다.
 
@@ -46,12 +46,6 @@ R 언어를 활용한 회귀 분석 프로젝트입니다.
 cd Drug_Drug_Interaction/deepddi2
 python run_DeepDDI.py --input_file [약물쌍파일]
 ```
-
----
-
-### 4. Deep Learning Projects
-
-딥러닝 모델링 과제 모음입니다.
 
 ---
 
