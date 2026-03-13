@@ -53,13 +53,7 @@ python run_DeepDDI.py --input_file [약물쌍파일]
 
 ```
 03_Data_Science_Projects/
-├── R_Regression_Analysis/        # R 회귀 분석
-│   └── R 회귀분석 프로젝트.zip
-│
-├── TimeSeries_Modeling/          # 시계열 분석
-│   └── *.zip (압축 파일)
-│
-├── Drug_Drug_Interaction/        # DDI 딥러닝 연구
+└── DeepLearning_Projects/        # 딥러닝 프로젝트
 │   └── deepddi2/
 │       ├── deepddi/              # 핵심 모듈
 │       │   ├── DeepDDI.py        # DDI 예측 (Keras)
@@ -67,9 +61,7 @@ python run_DeepDDI.py --input_file [약물쌍파일]
 │       │   └── preprocessing.py
 │       ├── data/                 # 약물 데이터
 │       └── run_DeepDDI.py        # 실행 스크립트
-│
-└── DeepLearning_Projects/        # 딥러닝 프로젝트
-    └── 딥러닝 프로젝트.zip
+
 ```
 
 ---
